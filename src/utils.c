@@ -1,5 +1,6 @@
 #include "utils.h"
 #include <ctype.h>
+#include <stdarg.h> // Necessário para manipular argumentos variáveis
 
 #ifdef _WIN32
     #include <conio.h>
@@ -37,8 +38,15 @@ void print_error(const char *message) {
     printf(COLOR_RED "❌ %s" COLOR_RESET "\n", message);
 }
 
-void print_info(const char *message) {
-    printf(COLOR_BLUE "ℹ️  %s" COLOR_RESET "\n", message);
+void print_info(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    printf(COLOR_BLUE "ℹ️  ");
+    vprintf(format, args); // Use vprintf para imprimir a string formatada
+    printf(COLOR_RESET "\n");
+
+    va_end(args);
 }
 
 void press_enter_to_continue(void) {
