@@ -10,7 +10,7 @@
 #define SYMBOLS "!@#$%^&*()_+-=[]{}|;:,.<>?"
 
 int generate_password(char *buffer, size_t buffer_size, PasswordOptions options) {
-    if (!buffer || buffer_size < options.length + 1) return 0;
+    if (!buffer || buffer_size < (size_t)(options.length + 1)) return 0;  // Correção: Cast para size_t
     if (options.length < 4 || options.length > 128) return 0;
     
     char charset[256] = {0};
