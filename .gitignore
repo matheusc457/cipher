@@ -1,40 +1,33 @@
-# Prerequisites
-*.d
-
-# Object files
+# Compiled Object files
 *.o
-*.ko
 *.obj
 *.elf
 
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
+# Compiled Dynamic libraries
 *.so
-*.so.*
 *.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
 
 # Executables
 *.exe
 *.out
 *.app
-*.i*86
-*.x86_64
-*.hex
+cipher
+
+# Build directories
+bin/
+obj/
+build/
+
+# Password data files (IMPORTANT: Never commit passwords!)
+data/passwords.dat
+data/passwords.dat.backup
+data/*.dat
+data/*.backup
 
 # Debug files
 *.dSYM/
@@ -42,14 +35,34 @@
 *.idb
 *.pdb
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
 
-# debug information files
-*.dwo
+# Dependency directories
+.deps/
+.libs/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile.bak
+
+# Core dumps
+core
+core.*
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# OS specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
