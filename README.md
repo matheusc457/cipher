@@ -266,9 +266,7 @@ cipher/
 │   └── utils.c/h        # Utility functions
 ├── data/
 │   ├── passwords.dat              # Encrypted password storage
-│   └── eff_large_wordlist.txt     # EFF wordlist (7,776 words)
-├── docs/
-│   └── architecture.md  # Technical documentation
+│   └── eff_large_wordlist.txt     # EFF wordlist (7,776 words
 ├── Makefile             # Build configuration
 └── README.md            # This file
 ```
@@ -314,17 +312,6 @@ This project uses the **EFF Large Wordlist** for passphrase generation.
 The wordlist was created by Joseph Bonneau and EFF, designed specifically for creating strong, memorable passphrases.
 
 **Attribution:** This project includes the EFF Large Wordlist, © 2016 Electronic Frontier Foundation, licensed under CC BY 3.0 US.
-
----
-
-## 📚 Documentation
-
-Detailed documentation is available in the `docs/` directory:
-
-* Architecture Overview
-* API Reference (coming soon)
-* Security Design (coming soon)
-* Passphrase Generator Technical Details (coming soon)
 
 ---
 
