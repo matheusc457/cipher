@@ -1,16 +1,12 @@
 # 🔐 Cipher
 
-<div align="center">
-
-![Cipher Logo](https://img.shields.io/badge/Cipher-Password_Manager-blue?style=for-the-badge&logo=lock)
+[![Cipher Logo](https://img.shields.io/badge/Cipher-Password_Manager-blue?style=for-the-badge&logo=lock)](https://github.com/matheusc457/cipher)
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Language](https://img.shields.io/badge/Language-C-00599C.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)](https://github.com/matheusc457/cipher)
 
-[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Documentation](#-documentation) • [Contributing](#-contributing)
-
-</div>
+[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Passphrase Generator](#-passphrase-generator-new) • [Documentation](#-documentation) • [Contributing](#-contributing)
 
 ---
 
@@ -20,32 +16,37 @@
 
 ### Why Cipher?
 
-- 🔒 **Secure**: AES encryption to protect your data
-- 🚀 **Fast**: Lightweight C implementation
-- 🎯 **Simple**: Clean CLI interface
-- 🔓 **Open Source**: Transparent and auditable code
-- 💾 **Portable**: Single encrypted file for all your passwords
+* 🔒 **Secure**: AES-256 encryption to protect your data
+* 🚀 **Fast**: Lightweight C implementation
+* 🎯 **Simple**: Clean CLI interface
+* 🔓 **Open Source**: Transparent and auditable code
+* 💾 **Portable**: Single encrypted file for all your passwords
+* 🎲 **Smart Generation**: Random passwords AND memorable passphrases
 
 ---
 
 ## ✨ Features
 
-- ✅ **Master Password Protection**: One password to rule them all
-- ✅ **Strong Encryption**: AES-256 encryption for stored passwords
-- ✅ **Password Generator**: Create strong random passwords
-- ✅ **CRUD Operations**: Add, search, update, and delete passwords
-- ✅ **Password Strength Analyzer**: Check if your passwords are strong
-- ✅ **Secure Storage**: Encrypted file-based storage
-- ✅ **Cross-Platform**: Works on Linux, macOS, and Windows
+* ✅ **Master Password Protection**: One password to rule them all
+* ✅ **Strong Encryption**: AES-256-CBC encryption for stored passwords
+* ✅ **Dual Password Generation**:
+  * 🔤 **Random Character Generator**: Strong random passwords (e.g., `K#9mP@xL2$qR7nWz`)
+  * 🎲 **Passphrase Generator**: Memorable word-based passwords (e.g., `correct-horse-battery-staple`)
+* ✅ **CRUD Operations**: Add, search, update, and delete passwords
+* ✅ **Password Strength Analyzer**: Check if your passwords are strong
+* ✅ **Secure Storage**: Encrypted file-based storage
+* ✅ **Cross-Platform**: Works on Linux, macOS, and Windows
+* ✅ **Entropy Calculation**: Know exactly how secure your passwords are
 
 ### 🚧 Upcoming Features
 
-- [ ] Password expiration reminders
-- [ ] Two-factor authentication (2FA) storage
-- [ ] Import/Export functionality
-- [ ] Clipboard integration with auto-clear
-- [ ] Password history tracking
-- [ ] Multi-user support
+* Password expiration reminders
+* Two-factor authentication (2FA) storage
+* Import/Export functionality
+* Clipboard integration with auto-clear
+* Password history tracking
+* Multi-user support
+* Backup and restore system
 
 ---
 
@@ -53,9 +54,9 @@
 
 ### Prerequisites
 
-- GCC compiler (or any C compiler)
-- Make
-- OpenSSL development libraries (for encryption)
+* GCC compiler (or any C compiler)
+* Make
+* OpenSSL development libraries (for encryption)
 
 ### Linux/macOS
 
@@ -70,6 +71,11 @@ brew install openssl
 # Clone the repository
 git clone https://github.com/matheusc457/cipher.git
 cd cipher
+
+# Download the EFF wordlist for passphrase generation
+cd data
+wget https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt
+cd ..
 
 # Build the project
 make
@@ -86,6 +92,10 @@ Using MinGW or WSL:
 # Install OpenSSL first, then:
 git clone https://github.com/matheusc457/cipher.git
 cd cipher
+
+# Download wordlist
+curl -o data/eff_large_wordlist.txt https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt
+
 make
 ./bin/cipher.exe
 ```
@@ -96,7 +106,7 @@ make
 
 ### First Time Setup
 
-```bash
+```
 $ ./bin/cipher
 
 Welcome to Cipher! 🔐
@@ -108,7 +118,7 @@ Confirm master password: ********
 
 ### Main Menu
 
-```plaintext
+```
 ╔══════════════════════════════════════╗
 ║        CIPHER PASSWORD MANAGER       ║
 ╚══════════════════════════════════════╝
@@ -118,9 +128,10 @@ Confirm master password: ********
 [3] List all services
 [4] Update password
 [5] Delete password
-[6] Generate strong password
-[7] Change master password
-[8] Exit
+[6] Generate random password
+[7] Generate passphrase         ← NEW!
+[8] Change master password
+[9] Exit
 
 Choose an option: _
 ```
@@ -129,7 +140,7 @@ Choose an option: _
 
 #### Adding a password
 
-```plaintext
+```
 Choose an option: 1
 
 Service name: Gmail
@@ -141,7 +152,7 @@ Password: ******** (or press G to generate)
 
 #### Searching for a password
 
-```plaintext
+```
 Choose an option: 2
 
 Service name: Gmail
@@ -155,7 +166,7 @@ Service name: Gmail
 
 #### Generating a strong password
 
-```plaintext
+```
 Choose an option: 6
 
 Password length (8-32): 16
@@ -172,19 +183,90 @@ Copy to clipboard? (y/n): y
 
 ---
 
+## 🎲 Passphrase Generator (NEW!)
+
+Generate memorable, secure passphrases using the EFF wordlist.
+
+### Usage Example
+
+```
+Choose an option: 7
+
+╔══════════════════════════════════════╗
+║    PASSPHRASE GENERATOR              ║
+╚══════════════════════════════════════╝
+
+Choose strength level:
+
+[1] 💚 Basic    - 3 words (39 bits)
+    Example: apple-tree-cloud
+    Crack time: ~1 year
+    
+[2] 💙 Standard - 4 words (52 bits)  
+    Example: apple-tree-cloud-river
+    Crack time: ~71 years
+    
+[3] 💜 Strong   - 5 words (65 bits)
+    Example: apple-tree-cloud-river-moon
+    Crack time: ~584k years
+    
+[4] 🔥 Maximum  - 6 words (77 bits)
+    Example: apple-tree-cloud-river-moon-star
+    Crack time: ~4.7M years
+    
+[5] ⚙️  Custom   - Configure manually
+
+[0] Back to main menu
+
+Choice: 2
+
+Generating Standard passphrase...
+
+┌─────────────────────────────────────┐
+│  correct-horse-battery-staple       │
+└─────────────────────────────────────┘
+
+📊 Strength: ████████░░ STRONG
+🔢 Entropy: 51.6 bits
+⏱️  Crack time: ~71 years
+
+What would you like to do?
+[1] 🔄 Generate another
+[2] 📋 Copy to clipboard
+[3] 💾 Use for new password entry
+[4] ◀️  Back
+```
+
+### Why Passphrases?
+
+Passphrases like `correct-horse-battery-staple` are:
+- ✅ **Easier to remember** than random characters
+- ✅ **Just as secure** when using enough words
+- ✅ **Faster to type** without special characters
+- ✅ **Less prone to typos**
+
+**Security Comparison:**
+- `K#9mP@xL2$qR7nWz` (16 chars) ≈ 95 bits entropy
+- `correct-horse-battery-staple` (4 words) ≈ 52 bits entropy
+- `correct-horse-battery-staple-mountain` (5 words) ≈ 65 bits entropy
+
+---
+
 ## 📁 Project Structure
 
-```plaintext
+```
 cipher/
 ├── src/
 │   ├── main.c           # Entry point and main menu
 │   ├── crypto.c/h       # Encryption/decryption functions
 │   ├── password.c/h     # Password management logic
-│   ├── generator.c/h    # Password generator
+│   ├── generator.c/h    # Random password generator
+│   ├── passphrase.c/h   # Passphrase generator (NEW!)
 │   ├── file_io.c/h      # File operations
 │   └── utils.c/h        # Utility functions
 ├── data/
-│   └── passwords.dat    # Encrypted password storage (created at runtime)
+│   ├── passwords.dat              # Encrypted password storage
+│   └── eff_large_wordlist.txt     # EFF wordlist (7,776 words)
 ├── docs/
 │   └── architecture.md  # Technical documentation
 ├── Makefile             # Build configuration
@@ -197,25 +279,41 @@ cipher/
 
 ### Encryption
 
-- **Algorithm**: AES-256-CBC
-- **Key Derivation**: PBKDF2 with SHA-256
-- **Salt**: Random 16-byte salt per file
-- **Iterations**: 100,000 iterations for key derivation
+* **Algorithm**: AES-256-CBC
+* **Key Derivation**: PBKDF2 with SHA-256
+* **Salt**: Random 16-byte salt per file
+* **Iterations**: 100,000 iterations for key derivation
+* **Random Generation**: OpenSSL RAND_bytes for cryptographically secure randomness
 
 ### Best Practices
 
-- ⚠️ Never share your master password
-- ⚠️ Use a strong master password (12+ characters)
-- ⚠️ Keep backups of your `passwords.dat` file
-- ⚠️ This is an educational project - use at your own risk
+* ⚠️ Never share your master password
+* ⚠️ Use a strong master password (12+ characters or 4+ word passphrase)
+* ⚠️ Keep backups of your `passwords.dat` file
+* ⚠️ This is an educational project - use at your own risk
 
 ### Limitations
 
 This is a learning project and should not be used for critical production environments. For production use, consider established solutions like:
 
-- [Bitwarden](https://bitwarden.com/)
-- [KeePassXC](https://keepassxc.org/)
-- [1Password](https://1password.com/)
+* [Bitwarden](https://bitwarden.com/)
+* [KeePassXC](https://keepassxc.org/)
+* [1Password](https://1password.com/)
+
+---
+
+## 📚 Third-Party Resources
+
+This project uses the **EFF Large Wordlist** for passphrase generation.
+
+* **Source:** [Electronic Frontier Foundation](https://www.eff.org/dice)
+* **Download:** https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt
+* **License:** [Creative Commons Attribution 3.0 United States](https://creativecommons.org/licenses/by/3.0/us/)
+* **File:** `data/eff_large_wordlist.txt` (7,776 words)
+
+The wordlist was created by Joseph Bonneau and EFF, designed specifically for creating strong, memorable passphrases.
+
+**Attribution:** This project includes the EFF Large Wordlist, © 2016 Electronic Frontier Foundation, licensed under CC BY 3.0 US.
 
 ---
 
@@ -223,9 +321,10 @@ This is a learning project and should not be used for critical production enviro
 
 Detailed documentation is available in the `docs/` directory:
 
-- Architecture Overview
-- API Reference (coming soon)
-- Security Design (coming soon)
+* Architecture Overview
+* API Reference (coming soon)
+* Security Design (coming soon)
+* Passphrase Generator Technical Details (coming soon)
 
 ---
 
@@ -269,10 +368,10 @@ git push origin feature/AmazingFeature
 
 ### Code Style
 
-- Follow C11 standard
-- Use 4 spaces for indentation
-- Comment complex logic
-- Keep functions under 50 lines when possible
+* Follow C11 standard
+* Use 4 spaces for indentation
+* Comment complex logic
+* Keep functions under 50 lines when possible
 
 ---
 
@@ -284,15 +383,16 @@ This project is licensed under the GNU General Public License v3.0 (GPLv3). See 
 
 ## 👨‍💻 Author
 
-Created with ❤️ by Matheus
+Created with ❤️ by [Matheus](https://github.com/matheusc457)
 
 ---
 
 ## 🙏 Acknowledgments
 
-- Inspired by password managers like KeePass and Bitwarden
-- Built as a learning project to understand C programming and cryptography
-- Thanks to the open-source community
+* Inspired by password managers like KeePass and Bitwarden
+* EFF Large Wordlist for passphrase generation
+* Built as a learning project to understand C programming and cryptography
+* Thanks to the open-source community
 
 ---
 
@@ -300,6 +400,6 @@ Created with ❤️ by Matheus
 
 ---
 
-⬆ [Back to top](#readme)
+⬆ [Back to top](#-cipher)
 
 Made with 🔐 and C.
