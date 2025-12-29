@@ -2,7 +2,7 @@
 # Compiler and flags
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -I./src
-LDFLAGS = -lssl -lcrypto
+LDFLAGS = -lssl -lcrypto -lm
 
 # Directories
 SRC_DIR = src
