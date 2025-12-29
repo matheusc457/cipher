@@ -5,6 +5,7 @@
 #include "crypto.h"
 #include "password.h"
 #include "generator.h"
+#include "passphrase.h"  // ← NOVO INCLUDE
 #include "file_io.h"
 
 #define MASTER_PASSWORD_SIZE 256
@@ -24,8 +25,9 @@ void show_menu(void) {
     printf("  [4] ✏️  Update password\n");
     printf("  [5] 🗑️  Delete password\n");
     printf("  [6] 🎲 Generate strong password\n");
-    printf("  [7] 🔐 Change master password\n");
-    printf("  [8] 💾 Save and exit\n");
+    printf("  [7] 🎯 Generate passphrase\n");           // ← NOVA OPÇÃO
+    printf("  [8] 🔐 Change master password\n");
+    printf("  [9] 💾 Save and exit\n");                 // ← NÚMERO MUDOU
     printf("\n");
 }
 
@@ -61,8 +63,9 @@ void add_password_menu(void) {
     
     printf("\nPassword options:\n");
     printf("  [1] Enter manually\n");
-    printf("  [2] Generate automatically\n");
-    choice = get_int_input("Choose: ", 1, 2);
+    printf("  [2] Generate random password\n");
+    printf("  [3] Generate passphrase\n");              // ← NOVA OPÇÃO
+    choice = get_int_input("Choose: ", 1, 3);           // ← MUDOU DE 2 PARA 3
     
     if (choice == 2) {
         PasswordOptions opts;
@@ -92,6 +95,42 @@ void add_password_menu(void) {
                    COLOR_RESET);
         } else {
             print_error("Failed to generate password!");
+            press_enter_to_continue();
+            return;
+        }
+    } else if (choice == 3) {  // ← NOVO BLOCO
+        // Initialize passphrase generator if needed
+        if (!is_wordlist_loaded()) {
+            print_info("Loading wordlist...");
+            if (passphrase_init() != 0) {
+                print_error("Failed to load wordlist!");
+                press_enter_to_continue();
+                return;
+            }
+        }
+        
+        printf("\nPassphrase presets:\n");
+        printf("  [1] Basic    - 3 words\n");
+        printf("  [2] Standard - 4 words (recommended)\n");
+        printf("  [3] Strong   - 5 words\n");
+        int preset = get_int_input("Choose preset: ", 1, 3);
+        
+        PassphraseConfig config = get_preset_config((PresetLevel)preset);
+        char *generated = generate_passphrase(&config);
+        
+        if (generated) {
+            strncpy(password, generated, sizeof(password) - 1);
+            password[sizeof(password) - 1] = '\0';
+            
+            printf("\nGenerated passphrase: %s%s%s\n", 
+                   COLOR_GREEN, password, COLOR_RESET);
+            
+            double entropy = calculate_entropy(config.num_words);
+            printf("Entropy: %.1f bits\n", entropy);
+            
+            free(generated);
+        } else {
+            print_error("Failed to generate passphrase!");
             press_enter_to_continue();
             return;
         }
@@ -394,7 +433,7 @@ int main(void) {
         print_header();
         show_menu();
         
-        int choice = get_int_input("Choose an option: ", 1, 8);
+        int choice = get_int_input("Choose an option: ", 1, 9);  // ← MUDOU DE 8 PARA 9
         
         switch (choice) {
             case 1: add_password_menu(); break;
@@ -408,8 +447,11 @@ int main(void) {
             case 4: update_password_menu(); break;
             case 5: delete_password_menu(); break;
             case 6: generate_password_menu(); break;
-            case 7: change_master_password_menu(); break;
-            case 8:
+            case 7:  // ← NOVO CASE
+                display_passphrase_menu();
+                break;
+            case 8: change_master_password_menu(); break;
+            case 9:  // ← MUDOU DE 8 PARA 9
                 clear_screen();
                 print_header();
                 print_info("Saving vault...");
@@ -426,6 +468,7 @@ int main(void) {
     // Cleanup
     memset(master_password, 0, sizeof(master_password));
     pm_free(pm);
+    passphrase_cleanup();  // ← NOVO CLEANUP
     crypto_cleanup();
     
     printf("\nThank you for using Cipher! 🔐\n\n");
