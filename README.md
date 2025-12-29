@@ -4,9 +4,7 @@
 
 ![Cipher Logo](https://img.shields.io/badge/Cipher-Password_Manager-blue?style=for-the-badge&logo=lock)
 
-**A secure and lightweight password manager written in C**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Language](https://img.shields.io/badge/Language-C-00599C.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)](https://github.com/matheusc457/cipher)
 
@@ -280,7 +278,7 @@ git push origin feature/AmazingFeature
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 (GPLv3). See the [LICENSE](LICENSE) file for the full license text or visit the [GNU GPLv3 page](https://www.gnu.org/licenses/gpl-3.0.en.html) for details.
 
 ---
 
