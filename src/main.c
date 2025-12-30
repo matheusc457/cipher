@@ -5,7 +5,7 @@
 #include "crypto.h"
 #include "password.h"
 #include "generator.h"
-#include "passphrase.h"  // ← NOVO INCLUDE
+#include "passphrase.h"
 #include "file_io.h"
 
 #define MASTER_PASSWORD_SIZE 256
@@ -25,9 +25,9 @@ void show_menu(void) {
     printf("  [4] Update password\n");
     printf("  [5] Delete password\n");
     printf("  [6] Generate strong password\n");
-    printf("  [7] Generate passphrase\n");           // ← NOVA OPÇÃO
+    printf("  [7] Generate passphrase\n");
     printf("  [8] Change master password\n");
-    printf("  [9] Save and exit\n");                 // ← NÚMERO MUDOU
+    printf("  [9] Save and exit\n");
     printf("\n");
 }
 
@@ -64,8 +64,8 @@ void add_password_menu(void) {
     printf("\nPassword options:\n");
     printf("  [1] Enter manually\n");
     printf("  [2] Generate random password\n");
-    printf("  [3] Generate passphrase\n");              // ← NOVA OPÇÃO
-    choice = get_int_input("Choose: ", 1, 3);           // ← MUDOU DE 2 PARA 3
+    printf("  [3] Generate passphrase\n");
+    choice = get_int_input("Choose: ", 1, 3);
     
     if (choice == 2) {
         PasswordOptions opts;
@@ -98,7 +98,7 @@ void add_password_menu(void) {
             press_enter_to_continue();
             return;
         }
-    } else if (choice == 3) {  // ← NOVO BLOCO
+    } else if (choice == 3) {
         // Initialize passphrase generator if needed
         if (!is_wordlist_loaded()) {
             print_info("Loading wordlist...");
@@ -169,9 +169,9 @@ void search_password_menu(void) {
         printf("║           Password Found               ║\n");
         printf("╚════════════════════════════════════════╝\n" COLOR_RESET);
         printf("\n");
-        printf("  📧 Service:  %s%s%s\n", COLOR_GREEN, entry->service, COLOR_RESET);
-        printf("  👤 Username: %s\n", entry->username);
-        printf("  🔑 Password: %s\n", entry->password);
+        printf("  Service:  %s%s%s\n", COLOR_GREEN, entry->service, COLOR_RESET);
+        printf("  Username: %s\n", entry->username);
+        printf("  Password: %s\n", entry->password);
         printf("\n");
         
         PasswordStrength strength = calculate_strength(entry->password);
@@ -433,7 +433,7 @@ int main(void) {
         print_header();
         show_menu();
         
-        int choice = get_int_input("Choose an option: ", 1, 9);  // ← MUDOU DE 8 PARA 9
+        int choice = get_int_input("Choose an option: ", 1, 9);
         
         switch (choice) {
             case 1: add_password_menu(); break;
@@ -447,11 +447,11 @@ int main(void) {
             case 4: update_password_menu(); break;
             case 5: delete_password_menu(); break;
             case 6: generate_password_menu(); break;
-            case 7:  // ← NOVO CASE
+            case 7:
                 display_passphrase_menu();
                 break;
             case 8: change_master_password_menu(); break;
-            case 9:  // ← MUDOU DE 8 PARA 9
+            case 9:
                 clear_screen();
                 print_header();
                 print_info("Saving vault...");
@@ -468,9 +468,9 @@ int main(void) {
     // Cleanup
     memset(master_password, 0, sizeof(master_password));
     pm_free(pm);
-    passphrase_cleanup();  // ← NOVO CLEANUP
+    passphrase_cleanup();
     crypto_cleanup();
     
-    printf("\nThank you for using Cipher! 🔐\n\n");
+    printf("\nThank you for using Cipher!\n\n");
     return 0;
 }
