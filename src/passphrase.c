@@ -27,7 +27,7 @@ static unsigned int get_random_number(unsigned int max) {
 int passphrase_init(void) {
     FILE *file = fopen(WORDLIST_PATH, "r");
     if (!file) {
-        fprintf(stderr, "❌ Error: Could not open wordlist file: %s\n", WORDLIST_PATH);
+        fprintf(stderr, "Error: Could not open wordlist file: %s\n", WORDLIST_PATH);
         fprintf(stderr, "Download it with:\n");
         fprintf(stderr, "  cd data && wget https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt\n");
         return -1;
@@ -69,13 +69,13 @@ int passphrase_init(void) {
     fclose(file);
     
     if (wordlist_size < 1000) {
-        fprintf(stderr, "⚠️  Warning: Wordlist seems too small (%d words)\n", wordlist_size);
+        fprintf(stderr, "Warning: Wordlist seems too small (%d words)\n", wordlist_size);
         fprintf(stderr, "Expected 7776 words for proper entropy.\n");
         return -1;
     }
     
     wordlist_loaded = 1;
-    printf("✅ Loaded %d words from wordlist\n", wordlist_size);
+    printf("Loaded %d words from wordlist\n", wordlist_size);
     return 0;
 }
 
@@ -100,7 +100,7 @@ static void capitalize_word(char *word) {
 // Generate passphrase
 char* generate_passphrase(PassphraseConfig *config) {
     if (!wordlist_loaded || wordlist_size == 0) {
-        fprintf(stderr, "❌ Error: Wordlist not loaded!\n");
+        fprintf(stderr, "Error: Wordlist not loaded!\n");
         return NULL;
     }
     
@@ -264,7 +264,7 @@ void display_passphrase(const char *passphrase, PassphraseConfig *config) {
     int strength_bars = (int)(entropy / 10);
     if (strength_bars > 10) strength_bars = 10;
     
-    printf("📊 Strength: ");
+    printf("Strength: ");
     for (int i = 0; i < strength_bars; i++) printf("█");
     for (int i = strength_bars; i < 10; i++) printf("░");
     
@@ -272,16 +272,16 @@ void display_passphrase(const char *passphrase, PassphraseConfig *config) {
     else if (entropy < 60) printf(" STRONG\n");
     else printf(" VERY STRONG\n");
     
-    printf("🔢 Entropy: %.1f bits\n", entropy);
-    printf("⏱️  Crack time: %s\n", crack_time);
+    printf("Entropy: %.1f bits\n", entropy);
+    printf("Crack time: %s\n", crack_time);
 }
 
 // Display passphrase menu
 void display_passphrase_menu(void) {
     if (!wordlist_loaded) {
-        printf("\n⚠️  Initializing passphrase generator...\n");
+        printf("\nInitializing passphrase generator...\n");
         if (passphrase_init() != 0) {
-            printf("\n❌ Failed to initialize passphrase generator.\n");
+            printf("\nFailed to initialize passphrase generator.\n");
             printf("Press Enter to return to main menu...");
             getchar();
             return;
@@ -294,23 +294,23 @@ void display_passphrase_menu(void) {
         printf("╚══════════════════════════════════════╝\n\n");
         
         printf("Choose strength level:\n\n");
-        printf("[1] 💚 Basic    - 3 words (%.0f bits)\n", calculate_entropy(3));
+        printf("[1] Basic    - 3 words (%.0f bits)\n", calculate_entropy(3));
         printf("    Example: apple-tree-cloud\n");
         printf("    Crack time: ~1 year\n\n");
         
-        printf("[2] 💙 Standard - 4 words (%.0f bits)\n", calculate_entropy(4));
+        printf("[2] Standard - 4 words (%.0f bits)\n", calculate_entropy(4));
         printf("    Example: apple-tree-cloud-river\n");
         printf("    Crack time: ~71 years\n\n");
         
-        printf("[3] 💜 Strong   - 5 words (%.0f bits)\n", calculate_entropy(5));
+        printf("[3] Strong   - 5 words (%.0f bits)\n", calculate_entropy(5));
         printf("    Example: apple-tree-cloud-river-moon\n");
         printf("    Crack time: ~584k years\n\n");
         
-        printf("[4] 🔥 Maximum  - 6 words (%.0f bits)\n", calculate_entropy(6));
+        printf("[4] Maximum  - 6 words (%.0f bits)\n", calculate_entropy(6));
         printf("    Example: apple-tree-cloud-river-moon-star\n");
         printf("    Crack time: ~4.7M years\n\n");
         
-        printf("[5] ⚙️  Custom   - Configure manually\n\n");
+        printf("[5] Custom   - Configure manually\n\n");
         printf("[0] Back to main menu\n\n");
         
         printf("Choice: ");
@@ -342,9 +342,9 @@ void display_passphrase_menu(void) {
             // Sub-menu
             while (1) {
                 printf("\nWhat would you like to do?\n");
-                printf("[1] 🔄 Generate another\n");
-                printf("[2] 📋 Copy to clipboard (manual)\n");
-                printf("[3] ◀️  Back\n\n");
+                printf("[1] Generate another\n");
+                printf("[2] Copy to clipboard (manual)\n");
+                printf("[3] Back\n\n");
                 printf("Choice: ");
                 
                 fgets(input, sizeof(input), stdin);
@@ -357,7 +357,7 @@ void display_passphrase_menu(void) {
                         display_passphrase(passphrase, &config);
                     }
                 } else if (sub_choice == 2) {
-                    printf("\n📋 Passphrase: %s\n", passphrase);
+                    printf("\nPassphrase: %s\n", passphrase);
                     printf("(Copy it manually - clipboard integration coming soon!)\n");
                 } else {
                     break;
