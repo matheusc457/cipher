@@ -19,15 +19,15 @@ void show_menu(void) {
     printf("║             MAIN MENU                  ║\n");
     printf("╚════════════════════════════════════════╝\n" COLOR_RESET);
     printf("\n");
-    printf("  [1] 🔑 Add new password\n");
-    printf("  [2] 🔍 Search password\n");
-    printf("  [3] 📋 List all services\n");
-    printf("  [4] ✏️  Update password\n");
-    printf("  [5] 🗑️  Delete password\n");
-    printf("  [6] 🎲 Generate strong password\n");
-    printf("  [7] 🎯 Generate passphrase\n");           // ← NOVA OPÇÃO
-    printf("  [8] 🔐 Change master password\n");
-    printf("  [9] 💾 Save and exit\n");                 // ← NÚMERO MUDOU
+    printf("  [1] Add new password\n");
+    printf("  [2] Search password\n");
+    printf("  [3] List all services\n");
+    printf("  [4] Update password\n");
+    printf("  [5] Delete password\n");
+    printf("  [6] Generate strong password\n");
+    printf("  [7] Generate passphrase\n");           // ← NOVA OPÇÃO
+    printf("  [8] Change master password\n");
+    printf("  [9] Save and exit\n");                 // ← NÚMERO MUDOU
     printf("\n");
 }
 
