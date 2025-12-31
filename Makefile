@@ -19,7 +19,6 @@ SOURCES = $(SRC_DIR)/main.c \
           $(SRC_DIR)/file_io.c \
           $(SRC_DIR)/utils.c
 
-# Object files
 OBJECTS = $(OBJ_DIR)/main.o \
           $(OBJ_DIR)/crypto.o \
           $(OBJ_DIR)/password.o \
@@ -44,9 +43,8 @@ directories:
 $(TARGET): $(OBJECTS)
 	@echo "Linking $(TARGET)..."
 	$(CC) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
-	@echo "Build complete! Run with: ./$(TARGET)"
+	@echo "[SUCCESS] Build complete! Run with: ./$(TARGET)"
 
-# Compile source files to object files
 $(OBJ_DIR)/main.o: $(SRC_DIR)/main.c $(SRC_DIR)/password.h $(SRC_DIR)/generator.h $(SRC_DIR)/passphrase.h $(SRC_DIR)/crypto.h
 	@echo "Compiling main.c..."
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/main.c -o $(OBJ_DIR)/main.o
@@ -78,50 +76,49 @@ $(OBJ_DIR)/utils.o: $(SRC_DIR)/utils.c $(SRC_DIR)/utils.h
 # Debug build with symbols
 debug: CFLAGS += -g -DDEBUG
 debug: clean all
-	@echo "Debug build complete!"
+	@echo "[SUCCESS] Debug build complete!"
 
 # Release build with optimizations
 release: CFLAGS += -O2 -DNDEBUG
 release: clean all
-	@echo "Release build complete!"
+	@echo "[SUCCESS] Release build complete!"
 
 # Clean build files
 clean:
 	@echo "Cleaning build files..."
 	rm -rf $(OBJ_DIR)/*.o $(TARGET)
-	@echo "Clean complete!"
+	@echo "[SUCCESS] Clean complete!"
 
 # Clean everything including data
 distclean: clean
 	@echo "Cleaning all generated files..."
 	rm -rf $(BIN_DIR) $(OBJ_DIR)
-	@echo "Distclean complete!"
+	@echo "[SUCCESS] Distclean complete!"
 
 # Install target (optional)
 install: $(TARGET)
 	@echo "Installing cipher to /usr/local/bin..."
 	sudo cp $(TARGET) /usr/local/bin/cipher
-	@echo "Installation complete!"
+	@echo "[SUCCESS] Installation complete!"
 
 # Uninstall target (optional)
 uninstall:
 	@echo "Uninstalling cipher..."
 	sudo rm -f /usr/local/bin/cipher
-	@echo "Uninstall complete!"
+	@echo "[SUCCESS] Uninstall complete!"
 
 # Run the program
 run: $(TARGET)
 	./$(TARGET)
 
-# Check if wordlist exists
 check-wordlist:
 	@if [ ! -f "$(DATA_DIR)/eff_large_wordlist.txt" ]; then \
-		echo "⚠️  Wordlist not found!"; \
+		echo "[WARNING] Wordlist not found!"; \
 		echo "Download it with:"; \
 		echo "  cd $(DATA_DIR) && wget https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt"; \
 		exit 1; \
 	else \
-		echo "✅ Wordlist found!"; \
+		echo "[SUCCESS] Wordlist found!"; \
 	fi
 
 # Help target
