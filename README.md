@@ -109,11 +109,11 @@ make
 ```
 $ ./bin/cipher
 
-Welcome to Cipher! 🔐
+Welcome to Cipher!
 No password file found. Creating new vault...
 Enter your master password: ********
 Confirm master password: ********
-✅ Vault created successfully!
+[SUCCESS] Vault created successfully!
 ```
 
 ### Main Menu
@@ -129,7 +129,7 @@ Confirm master password: ********
 [4] Update password
 [5] Delete password
 [6] Generate random password
-[7] Generate passphrase         ← NEW!
+[7] Generate passphrase
 [8] Change master password
 [9] Exit
 
@@ -145,9 +145,23 @@ Choose an option: 1
 
 Service name: Gmail
 Username: john@example.com
-Password: ******** (or press G to generate)
 
-✅ Password saved successfully!
+Password options:
+  [1] Enter manually
+  [2] Generate random password
+  [3] Generate passphrase
+Choose: 3
+
+Passphrase presets:
+  [1] Basic    - 3 words
+  [2] Standard - 4 words (recommended)
+  [3] Strong   - 5 words
+Choose preset: 2
+
+Generated passphrase: correct-horse-battery-staple
+Entropy: 51.7 bits
+
+[SUCCESS] Password added successfully!
 ```
 
 #### Searching for a password
@@ -157,11 +171,15 @@ Choose an option: 2
 
 Service name: Gmail
 
-📧 Gmail
-   Username: john@example.com
-   Password: MySecurePass123
-   
-🔒 Password copied to clipboard (will clear in 30s)
+╔════════════════════════════════════════╗
+║           Password Found               ║
+╚════════════════════════════════════════╝
+
+  Service:  Gmail
+  Username: john@example.com
+  Password: correct-horse-battery-staple
+  
+  Strength: STRONG
 ```
 
 #### Generating a strong password
@@ -175,10 +193,7 @@ Include numbers? (y/n): y
 Include symbols? (y/n): y
 
 Generated password: K#9mP@xL2$qR7nWz
-Strength: 🟢 STRONG
-
-Copy to clipboard? (y/n): y
-✅ Copied!
+Strength: STRONG
 ```
 
 ---
@@ -198,43 +213,40 @@ Choose an option: 7
 
 Choose strength level:
 
-[1] 💚 Basic    - 3 words (39 bits)
+[1] Basic    - 3 words (39 bits)
     Example: apple-tree-cloud
     Crack time: ~1 year
     
-[2] 💙 Standard - 4 words (52 bits)  
+[2] Standard - 4 words (52 bits)
     Example: apple-tree-cloud-river
     Crack time: ~71 years
     
-[3] 💜 Strong   - 5 words (65 bits)
+[3] Strong   - 5 words (65 bits)
     Example: apple-tree-cloud-river-moon
     Crack time: ~584k years
     
-[4] 🔥 Maximum  - 6 words (77 bits)
+[4] Maximum  - 6 words (77 bits)
     Example: apple-tree-cloud-river-moon-star
     Crack time: ~4.7M years
     
-[5] ⚙️  Custom   - Configure manually
+[5] Custom   - Configure manually
 
 [0] Back to main menu
 
 Choice: 2
 
-Generating Standard passphrase...
+Generating passphrase...
 
-┌─────────────────────────────────────┐
-│  correct-horse-battery-staple       │
-└─────────────────────────────────────┘
+  correct-horse-battery-staple
 
-📊 Strength: ████████░░ STRONG
-🔢 Entropy: 51.6 bits
-⏱️  Crack time: ~71 years
+Strength: ######---- STRONG
+Entropy: 51.7 bits
+Crack time: ~71 years
 
 What would you like to do?
-[1] 🔄 Generate another
-[2] 📋 Copy to clipboard
-[3] 💾 Use for new password entry
-[4] ◀️  Back
+[1] Generate another
+[2] Copy to clipboard (manual)
+[3] Back
 ```
 
 ### Why Passphrases?
@@ -266,7 +278,7 @@ cipher/
 │   └── utils.c/h        # Utility functions
 ├── data/
 │   ├── passwords.dat              # Encrypted password storage
-│   └── eff_large_wordlist.txt     # EFF wordlist (7,776 words
+│   └── eff_large_wordlist.txt     # EFF wordlist (7,776 words)
 ├── Makefile             # Build configuration
 └── README.md            # This file
 ```
@@ -389,4 +401,4 @@ Created with ❤️ by [Matheus](https://github.com/matheusc457)
 
 ⬆ [Back to top](#-cipher)
 
-Made with 🔐 and C.
+Made with 🔐 and C
