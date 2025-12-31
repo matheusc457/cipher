@@ -74,7 +74,6 @@ int passphrase_init(void) {
         return -1;
     }
     
-    wordlist_loaded = 1;
     printf("Loaded %d words from wordlist\n", wordlist_size);
     return 0;
 }
@@ -219,10 +218,10 @@ PassphraseConfig get_custom_config(void) {
     
     // Separator
     printf("\nSeparator:\n");
-    printf("[1] Hyphen (-)      → word-word-word\n");
-    printf("[2] Underscore (_)  → word_word_word\n");
-    printf("[3] Space ( )       → word word word\n");
-    printf("[4] None            → wordwordword\n");
+    printf("[1] Hyphen (-)      -> word-word-word\n");
+    printf("[2] Underscore (_)  -> word_word_word\n");
+    printf("[3] Space ( )       -> word word word\n");
+    printf("[4] None            -> wordwordword\n");
     printf("Choice: ");
     fgets(input, sizeof(input), stdin);
     int sep_choice = atoi(input);
@@ -256,17 +255,17 @@ void display_passphrase(const char *passphrase, PassphraseConfig *config) {
     char crack_time[64];
     get_crack_time(entropy, crack_time, sizeof(crack_time));
     
-    printf("\n┌─────────────────────────────────────┐\n");
-    printf("│  %-35s│\n", passphrase);
-    printf("└─────────────────────────────────────┘\n\n");
+    printf("\n");
+    printf("  %s\n", passphrase);
+    printf("\n");
     
     // Strength bar
     int strength_bars = (int)(entropy / 10);
     if (strength_bars > 10) strength_bars = 10;
     
     printf("Strength: ");
-    for (int i = 0; i < strength_bars; i++) printf("█");
-    for (int i = strength_bars; i < 10; i++) printf("░");
+    for (int i = 0; i < strength_bars; i++) printf("#");
+    for (int i = strength_bars; i < 10; i++) printf("-");
     
     if (entropy < 40) printf(" WEAK\n");
     else if (entropy < 60) printf(" STRONG\n");
