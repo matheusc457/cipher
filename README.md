@@ -329,18 +329,62 @@ The wordlist was created by Joseph Bonneau and EFF, designed specifically for cr
 
 ## 🧪 Building from Source
 
+### Compiler Options
+
+Cipher supports both **GCC** and **Clang** compilers:
+
 ```bash
-# Debug build
+# Build with GCC (default)
+make
+
+# Build with Clang
+make clang
+
+# Build with specific compiler
+make CC=clang
+make CC=gcc-13
+```
+
+### Build Types
+
+```bash
+# Debug build (with symbols)
 make debug
 
 # Release build (optimized)
 make release
 
-# Run tests
-make test
+# Clang with sanitizers (development/debugging)
+make sanitize
+```
 
+### Additional Targets
+
+```bash
 # Clean build files
 make clean
+
+# Clean everything
+make distclean
+
+# Check available compilers
+make compiler-info
+
+# Show all options
+make help
+```
+
+### Advanced Examples
+
+```bash
+# Clang optimized build
+make CC=clang release
+
+# Custom optimization flags
+make CFLAGS="-O3 -march=native"
+
+# Debug build with Clang
+make CC=clang debug
 ```
 
 ---
