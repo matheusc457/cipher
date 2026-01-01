@@ -67,4 +67,6 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-data/
+data/*
+!data/.gitkeep
+!data/eff_large_wordlist.txt
