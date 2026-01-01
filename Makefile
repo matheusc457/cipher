@@ -1,6 +1,7 @@
 # Cipher Password Manager - Makefile
-# Compiler and flags
-CC = gcc
+
+# Compiler selection (default: gcc, use 'make CC=clang' for clang)
+CC ?= gcc
 CFLAGS = -Wall -Wextra -std=c11 -I./src
 LDFLAGS = -lssl -lcrypto -lm
 
@@ -32,6 +33,7 @@ TARGET = $(BIN_DIR)/cipher
 
 # Default target
 all: directories $(TARGET)
+	@echo "[SUCCESS] Build complete with $(CC)! Run with: ./$(TARGET)"
 
 # Create necessary directories
 directories:
@@ -41,47 +43,63 @@ directories:
 
 # Link object files to create executable
 $(TARGET): $(OBJECTS)
-	@echo "Linking $(TARGET)..."
+	@echo "Linking $(TARGET) with $(CC)..."
 	$(CC) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
-	@echo "[SUCCESS] Build complete! Run with: ./$(TARGET)"
 
 $(OBJ_DIR)/main.o: $(SRC_DIR)/main.c $(SRC_DIR)/password.h $(SRC_DIR)/generator.h $(SRC_DIR)/passphrase.h $(SRC_DIR)/crypto.h
-	@echo "Compiling main.c..."
+	@echo "Compiling main.c with $(CC)..."
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/main.c -o $(OBJ_DIR)/main.o
 
 $(OBJ_DIR)/crypto.o: $(SRC_DIR)/crypto.c $(SRC_DIR)/crypto.h
-	@echo "Compiling crypto.c..."
+	@echo "Compiling crypto.c with $(CC)..."
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/crypto.c -o $(OBJ_DIR)/crypto.o
 
 $(OBJ_DIR)/password.o: $(SRC_DIR)/password.c $(SRC_DIR)/password.h $(SRC_DIR)/crypto.h $(SRC_DIR)/file_io.h
-	@echo "Compiling password.c..."
+	@echo "Compiling password.c with $(CC)..."
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/password.c -o $(OBJ_DIR)/password.o
 
 $(OBJ_DIR)/generator.o: $(SRC_DIR)/generator.c $(SRC_DIR)/generator.h $(SRC_DIR)/utils.h
-	@echo "Compiling generator.c..."
+	@echo "Compiling generator.c with $(CC)..."
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/generator.c -o $(OBJ_DIR)/generator.o
 
 $(OBJ_DIR)/passphrase.o: $(SRC_DIR)/passphrase.c $(SRC_DIR)/passphrase.h $(SRC_DIR)/utils.h
-	@echo "Compiling passphrase.c..."
+	@echo "Compiling passphrase.c with $(CC)..."
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/passphrase.c -o $(OBJ_DIR)/passphrase.o
 
 $(OBJ_DIR)/file_io.o: $(SRC_DIR)/file_io.c $(SRC_DIR)/file_io.h
-	@echo "Compiling file_io.c..."
+	@echo "Compiling file_io.c with $(CC)..."
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/file_io.c -o $(OBJ_DIR)/file_io.o
 
 $(OBJ_DIR)/utils.o: $(SRC_DIR)/utils.c $(SRC_DIR)/utils.h
-	@echo "Compiling utils.c..."
+	@echo "Compiling utils.c with $(CC)..."
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/utils.c -o $(OBJ_DIR)/utils.o
+
+# Build with Clang
+clang:
+	@echo "Building with Clang..."
+	@$(MAKE) CC=clang
+
+# Build with GCC (explicit)
+gcc:
+	@echo "Building with GCC..."
+	@$(MAKE) CC=gcc
 
 # Debug build with symbols
 debug: CFLAGS += -g -DDEBUG
 debug: clean all
-	@echo "[SUCCESS] Debug build complete!"
+	@echo "[SUCCESS] Debug build complete with $(CC)!"
 
 # Release build with optimizations
 release: CFLAGS += -O2 -DNDEBUG
 release: clean all
-	@echo "[SUCCESS] Release build complete!"
+	@echo "[SUCCESS] Release build complete with $(CC)!"
+
+# Clang with sanitizers (for development/debugging)
+sanitize: CC = clang
+sanitize: CFLAGS += -g -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer
+sanitize: LDFLAGS += -fsanitize=address -fsanitize=undefined
+sanitize: clean all
+	@echo "[SUCCESS] Sanitize build complete! (Address Sanitizer + UB Sanitizer)"
 
 # Clean build files
 clean:
@@ -121,27 +139,51 @@ check-wordlist:
 		echo "[SUCCESS] Wordlist found!"; \
 	fi
 
+# Show compiler info
+compiler-info:
+	@echo "=== Compiler Information ==="
+	@echo "Current compiler: $(CC)"
+	@which $(CC) 2>/dev/null || echo "$(CC) not found in PATH"
+	@$(CC) --version 2>/dev/null || echo "Could not get $(CC) version"
+	@echo ""
+	@echo "=== Available Compilers ==="
+	@which gcc 2>/dev/null && gcc --version | head -n1 || echo "GCC: not found"
+	@which clang 2>/dev/null && clang --version | head -n1 || echo "Clang: not found"
+
 # Help target
 help:
 	@echo "Cipher Password Manager - Makefile"
 	@echo ""
-	@echo "Available targets:"
-	@echo "  all          - Build the project (default)"
-	@echo "  debug        - Build with debug symbols"
-	@echo "  release      - Build with optimizations"
-	@echo "  clean        - Remove object files and executable"
-	@echo "  distclean    - Remove all generated files"
-	@echo "  run          - Build and run the program"
-	@echo "  install      - Install to /usr/local/bin (requires sudo)"
-	@echo "  uninstall    - Remove from /usr/local/bin (requires sudo)"
-	@echo "  check-wordlist - Verify wordlist file exists"
-	@echo "  help         - Show this help message"
+	@echo "=== Build Targets ==="
+	@echo "  make              - Build with default compiler (gcc)"
+	@echo "  make gcc          - Build explicitly with GCC"
+	@echo "  make clang        - Build explicitly with Clang"
+	@echo "  make debug        - Build with debug symbols"
+	@echo "  make release      - Build optimized release version"
+	@echo "  make sanitize     - Build with Clang sanitizers (dev/debug)"
 	@echo ""
-	@echo "Example usage:"
-	@echo "  make              # Build the project"
-	@echo "  make debug        # Build with debug info"
-	@echo "  make run          # Build and run"
-	@echo "  make clean        # Clean build files"
+	@echo "=== Utility Targets ==="
+	@echo "  make clean        - Remove object files and executable"
+	@echo "  make distclean    - Remove all generated files"
+	@echo "  make run          - Build and run the program"
+	@echo "  make install      - Install to /usr/local/bin (requires sudo)"
+	@echo "  make uninstall    - Remove from /usr/local/bin (requires sudo)"
+	@echo "  make check-wordlist - Verify wordlist file exists"
+	@echo "  make compiler-info  - Show available compilers"
+	@echo "  make help         - Show this help message"
+	@echo ""
+	@echo "=== Advanced Usage ==="
+	@echo "  make CC=clang     - Build with specific compiler"
+	@echo "  make CC=clang release - Clang optimized build"
+	@echo "  make CFLAGS=\"-O3 -march=native\" - Custom flags"
+	@echo ""
+	@echo "=== Examples ==="
+	@echo "  make              # Build with GCC"
+	@echo "  make clang        # Build with Clang"
+	@echo "  make debug        # Debug build with current compiler"
+	@echo "  make CC=clang debug # Debug build with Clang"
+	@echo "  make sanitize     # Development build with sanitizers"
+	@echo "  make clean run    # Clean and run"
 
 # Phony targets
-.PHONY: all clean distclean debug release run install uninstall check-wordlist help directories
+.PHONY: all clean distclean debug release run install uninstall check-wordlist help directories gcc clang sanitize compiler-info
