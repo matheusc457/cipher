@@ -1,6 +1,5 @@
 #include "utils.h"
 #include <ctype.h>
-#include <stdarg.h> // Necessário para manipular argumentos variáveis
 
 #ifdef _WIN32
     #include <conio.h>
@@ -24,29 +23,22 @@ void print_header(void) {
     printf("\n");
     printf(COLOR_CYAN);
     printf("╔══════════════════════════════════════╗\n");
-    printf("║    🔐 CIPHER PASSWORD MANAGER 🔐     ║\n");
+    printf("║      CIPHER PASSWORD MANAGER         ║\n");
     printf("╚══════════════════════════════════════╝\n");
     printf(COLOR_RESET);
     printf("\n");
 }
 
 void print_success(const char *message) {
-    printf(COLOR_GREEN "✅ %s" COLOR_RESET "\n", message);
+    printf(COLOR_GREEN "[SUCCESS] %s" COLOR_RESET "\n", message);
 }
 
 void print_error(const char *message) {
-    printf(COLOR_RED "❌ %s" COLOR_RESET "\n", message);
+    printf(COLOR_RED "[ERROR] %s" COLOR_RESET "\n", message);
 }
 
-void print_info(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-
-    printf(COLOR_BLUE "ℹ️  ");
-    vprintf(format, args); // Use vprintf para imprimir a string formatada
-    printf(COLOR_RESET "\n");
-
-    va_end(args);
+void print_info(const char *message) {
+    printf(COLOR_BLUE "[INFO] %s" COLOR_RESET "\n", message);
 }
 
 void press_enter_to_continue(void) {
