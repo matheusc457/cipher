@@ -74,6 +74,7 @@ int passphrase_init(void) {
         return -1;
     }
     
+    wordlist_loaded = 1;  // Mark as successfully loaded
     printf("Loaded %d words from wordlist\n", wordlist_size);
     return 0;
 }
