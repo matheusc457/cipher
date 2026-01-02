@@ -3,8 +3,12 @@
 
 #include "password.h"
 
-#define DATA_FILE "data/passwords.dat"
-#define BACKUP_FILE "data/passwords.dat.backup"
+// Get the data directory path (creates if doesn't exist)
+const char* get_data_dir(void);
+
+// Data file paths (use get_data_dir() to construct full paths)
+#define DATA_FILE_NAME "passwords.dat"
+#define BACKUP_FILE_NAME "passwords.dat.backup"
 
 // File header structure
 typedef struct {
