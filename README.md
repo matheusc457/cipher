@@ -68,14 +68,9 @@ sudo apt-get install libssl-dev
 # macOS:
 brew install openssl
 
-# Clone the repository
+# Clone the repository (wordlist included!)
 git clone https://github.com/matheusc457/cipher.git
 cd cipher
-
-# Download the EFF wordlist for passphrase generation
-cd data
-wget https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt
-cd ..
 
 # Build the project
 make
@@ -93,9 +88,7 @@ Using MinGW or WSL:
 git clone https://github.com/matheusc457/cipher.git
 cd cipher
 
-# Download wordlist
-curl -o data/eff_large_wordlist.txt https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt
-
+# Build and run
 make
 ./bin/cipher.exe
 ```
