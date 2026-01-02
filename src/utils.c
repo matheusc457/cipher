@@ -1,5 +1,6 @@
 #include "utils.h"
 #include <ctype.h>
+#include <stdarg.h>
 
 #ifdef _WIN32
     #include <conio.h>
@@ -37,14 +38,19 @@ void print_error(const char *message) {
     printf(COLOR_RED "[ERROR] %s" COLOR_RESET "\n", message);
 }
 
-void print_info(const char *message) {
-    printf(COLOR_BLUE "[INFO] %s" COLOR_RESET "\n", message);
+void print_info(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    printf(COLOR_BLUE "[INFO] " COLOR_RESET);
+    vprintf(format, args);
+    printf("\n");
+    va_end(args);
 }
 
 void press_enter_to_continue(void) {
     printf("\nPress ENTER to continue...");
     clear_input_buffer();
-    getchar();
+    (void)getchar();  // Explicitly ignore return value
 }
 
 int get_int_input(const char *prompt, int min, int max) {
