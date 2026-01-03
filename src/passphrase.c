@@ -9,10 +9,14 @@
     #define PATH_MAX MAX_PATH
 #else
     #include <unistd.h>
-    #include <libgen.h>
     #include <limits.h>
+    #include <libgen.h>
     #ifdef __APPLE__
         #include <mach-o/dyld.h>
+    #endif
+    // Fallback for systems without PATH_MAX
+    #ifndef PATH_MAX
+        #define PATH_MAX 4096
     #endif
 #endif
 
@@ -28,28 +32,34 @@ const char* get_wordlist_path(void) {
         return wordlist_path;
     }
     
+    char *dir_path = NULL;
+    
+#if defined(__linux__) || defined(__APPLE__) || defined(_WIN32)
     char exe_path[PATH_MAX];
     char exe_path_copy[PATH_MAX];
-    char *dir_path = NULL;
     
 #ifdef __linux__
     ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
     if (len != -1) {
         exe_path[len] = '\0';
-        strncpy(exe_path_copy, exe_path, sizeof(exe_path_copy));
+        strncpy(exe_path_copy, exe_path, sizeof(exe_path_copy) - 1);
+        exe_path_copy[sizeof(exe_path_copy) - 1] = '\0';
         dir_path = dirname(exe_path_copy);
     }
 #elif defined(__APPLE__)
     uint32_t size = sizeof(exe_path);
     if (_NSGetExecutablePath(exe_path, &size) == 0) {
-        strncpy(exe_path_copy, exe_path, sizeof(exe_path_copy));
+        strncpy(exe_path_copy, exe_path, sizeof(exe_path_copy) - 1);
+        exe_path_copy[sizeof(exe_path_copy) - 1] = '\0';
         dir_path = dirname(exe_path_copy);
     }
 #elif defined(_WIN32)
     if (GetModuleFileName(NULL, exe_path, sizeof(exe_path)) != 0) {
-        strncpy(exe_path_copy, exe_path, sizeof(exe_path_copy));
+        strncpy(exe_path_copy, exe_path, sizeof(exe_path_copy) - 1);
+        exe_path_copy[sizeof(exe_path_copy) - 1] = '\0';
         dir_path = dirname(exe_path_copy);
     }
+#endif
 #endif
     
     if (dir_path) {
@@ -66,6 +76,7 @@ const char* get_wordlist_path(void) {
     
     // Fallback to relative path
     strncpy(wordlist_path, "data/eff_large_wordlist.txt", sizeof(wordlist_path) - 1);
+    wordlist_path[sizeof(wordlist_path) - 1] = '\0';
     return wordlist_path;
 }
 
