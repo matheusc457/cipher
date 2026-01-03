@@ -1,33 +1,61 @@
 #ifndef PASSPHRASE_H
 #define PASSPHRASE_H
 
-#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#define WORDLIST_FILE "data/eff_large_wordlist.txt"
-#define MAX_WORDLIST_SIZE 7776
+// Maximum number of words in wordlist
+#define MAX_WORDS 7776
 #define MAX_WORD_LENGTH 32
-#define MAX_PASSPHRASE_LENGTH 512
 
-// Passphrase generation options
-typedef struct {
-    int word_count;           // Number of words (4-10)
-    int capitalize;           // Capitalize first letter of each word
-    int include_numbers;      // Add numbers between words
-    int include_symbols;      // Add symbols between words
-    char separator;           // Separator character (space, -, _, etc)
-} PassphraseOptions;
+// Get wordlist path (returns path relative to executable or data directory)
+const char* get_wordlist_path(void);
 
-// Passphrase strength information
+// Passphrase configuration structure
 typedef struct {
-    double entropy_bits;
-    long long possible_combinations;
-    char strength_level[20];
-} PassphraseStrength;
+    int num_words;           // Number of words (3-8)
+    char separator;          // Separator: '-', '_', ' ', or '\0' for none
+    int capitalize;          // 1 = capitalize first letter, 0 = lowercase
+    int add_number;          // 1 = add random number at end, 0 = no number
+    int add_symbols;         // 1 = add symbols between words (future feature)
+} PassphraseConfig;
+
+// Preset levels
+typedef enum {
+    PRESET_BASIC = 1,      // 3 words, 39 bits
+    PRESET_STANDARD = 2,   // 4 words, 52 bits (recommended)
+    PRESET_STRONG = 3,     // 5 words, 65 bits
+    PRESET_MAXIMUM = 4,    // 6 words, 77 bits
+    PRESET_CUSTOM = 5      // User-defined
+} PresetLevel;
+
+// Function declarations
 
 // Initialize passphrase generator (load wordlist)
 int passphrase_init(void);
 
-// Cleanup passphrase generator
+// Clean up and free memory
 void passphrase_cleanup(void);
 
-// Generate passphrase with given
+// Generate passphrase with given configuration
+char* generate_passphrase(PassphraseConfig *config);
+
+// Get preset configuration
+PassphraseConfig get_preset_config(PresetLevel level);
+
+// Calculate entropy in bits
+double calculate_entropy(int num_words);
+
+// Display the passphrase generator menu
+void display_passphrase_menu(void);
+
+// Get custom configuration from user
+PassphraseConfig get_custom_config(void);
+
+// Display passphrase with formatting
+void display_passphrase(const char *passphrase, PassphraseConfig *config);
+
+// Check if wordlist is loaded
+int is_wordlist_loaded(void);
+
+#endif // PASSPHRASE_H
