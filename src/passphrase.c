@@ -5,6 +5,7 @@
 #endif
 
 #include "passphrase.h"
+#include "clipboard.h"
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
@@ -421,7 +422,13 @@ void display_passphrase_menu(void) {
             while (1) {
                 printf("\nWhat would you like to do?\n");
                 printf("[1] Generate another\n");
-                printf("[2] Copy to clipboard (manual)\n");
+                
+                if (clipboard_is_available()) {
+                    printf("[2] Copy to clipboard (auto-clears in 30s)\n");
+                } else {
+                    printf("[2] Show passphrase again\n");
+                }
+                
                 printf("[3] Back\n\n");
                 printf("Choice: ");
                 
@@ -435,8 +442,15 @@ void display_passphrase_menu(void) {
                         display_passphrase(passphrase, &config);
                     }
                 } else if (sub_choice == 2) {
-                    printf("\nPassphrase: %s\n", passphrase);
-                    printf("(Copy it manually - clipboard integration coming soon!)\n");
+                    if (clipboard_is_available()) {
+                        if (clipboard_copy_with_timeout(passphrase, 30)) {
+                            printf("\n[SUCCESS] Passphrase copied! Auto-clears in 30 seconds.\n");
+                        } else {
+                            printf("\n[ERROR] Failed to copy to clipboard.\n");
+                        }
+                    } else {
+                        printf("\nPassphrase: %s\n", passphrase);
+                    }
                 } else {
                     break;
                 }
