@@ -6,17 +6,82 @@
 #include <string.h>
 #include <sys/stat.h>
 
-int file_init(void) {
 #ifdef _WIN32
-    mkdir("data");
+    #include <direct.h>
+    #define mkdir(path, mode) _mkdir(path)
 #else
-    mkdir("data", 0700);
+    #include <unistd.h>
 #endif
+
+static char data_dir_path[512] = {0};
+static char data_file_path[512] = {0};
+static char backup_file_path[512] = {0};
+
+// Get or create the data directory
+const char* get_data_dir(void) {
+    if (data_dir_path[0] != '\0') {
+        return data_dir_path;
+    }
+    
+    const char *home = getenv("HOME");
+    
+#ifdef _WIN32
+    if (!home) {
+        home = getenv("USERPROFILE");
+    }
+#endif
+    
+    if (!home) {
+        // Fallback to current directory
+        strncpy(data_dir_path, ".cipher", sizeof(data_dir_path) - 1);
+    } else {
+        // Use ~/.cipher on Unix or %USERPROFILE%\.cipher on Windows
+        snprintf(data_dir_path, sizeof(data_dir_path), "%s/.cipher", home);
+    }
+    
+    return data_dir_path;
+}
+
+// Get full path to data file
+static const char* get_data_file_path(void) {
+    if (data_file_path[0] != '\0') {
+        return data_file_path;
+    }
+    
+    const char *dir = get_data_dir();
+    snprintf(data_file_path, sizeof(data_file_path), "%s/%s", dir, DATA_FILE_NAME);
+    return data_file_path;
+}
+
+// Get full path to backup file
+static const char* get_backup_file_path(void) {
+    if (backup_file_path[0] != '\0') {
+        return backup_file_path;
+    }
+    
+    const char *dir = get_data_dir();
+    snprintf(backup_file_path, sizeof(backup_file_path), "%s/%s", dir, BACKUP_FILE_NAME);
+    return backup_file_path;
+}
+
+int file_init(void) {
+    const char *dir = get_data_dir();
+    
+    // Create directory if it doesn't exist
+    struct stat st = {0};
+    if (stat(dir, &st) == -1) {
+#ifdef _WIN32
+        mkdir(dir);
+#else
+        mkdir(dir, 0700);
+#endif
+    }
+    
     return 1;
 }
 
 int file_exists(void) {
-    FILE *file = fopen(DATA_FILE, "rb");
+    FILE *file = fopen(get_data_file_path(), "rb");
     if (file) {
         fclose(file);
         return 1;
@@ -27,7 +92,7 @@ int file_exists(void) {
 int file_save(PasswordManager *pm, const char *master_password) {
     if (!pm || !master_password) return 0;
     
-    FILE *file = fopen(DATA_FILE, "wb");
+    FILE *file = fopen(get_data_file_path(), "wb");
     if (!file) return 0;
     
     // Generate salt and IV
@@ -97,7 +162,7 @@ int file_save(PasswordManager *pm, const char *master_password) {
 PasswordManager* file_load(const char *master_password, int *success) {
     *success = 0;
     
-    FILE *file = fopen(DATA_FILE, "rb");
+    FILE *file = fopen(get_data_file_path(), "rb");
     if (!file) return NULL;
     
     // Read header
@@ -184,7 +249,7 @@ PasswordManager* file_load(const char *master_password, int *success) {
 }
 
 int file_verify_master_password(const char *master_password) {
-    FILE *file = fopen(DATA_FILE, "rb");
+    FILE *file = fopen(get_data_file_path(), "rb");
     if (!file) return 0;
     
     FileHeader header;
@@ -198,10 +263,10 @@ int file_verify_master_password(const char *master_password) {
 }
 
 int file_create_backup(void) {
-    FILE *src = fopen(DATA_FILE, "rb");
+    FILE *src = fopen(get_data_file_path(), "rb");
     if (!src) return 0;
     
-    FILE *dst = fopen(BACKUP_FILE, "wb");
+    FILE *dst = fopen(get_backup_file_path(), "wb");
     if (!dst) {
         fclose(src);
         return 0;
