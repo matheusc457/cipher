@@ -1,3 +1,9 @@
+// Feature test macros must come before any includes
+#ifndef _WIN32
+    #define _XOPEN_SOURCE 500
+    #define _DEFAULT_SOURCE
+#endif
+
 #include "passphrase.h"
 #include <string.h>
 #include <ctype.h>
@@ -25,6 +31,20 @@ static char wordlist[MAX_WORDS][MAX_WORD_LENGTH];
 static int wordlist_size = 0;
 static int wordlist_loaded = 0;
 static char wordlist_path[512] = {0};
+
+// Get cryptographically secure random number
+static unsigned int get_random_number(unsigned int max) {
+    unsigned char buf[4];
+    unsigned int num;
+    
+    if (RAND_bytes(buf, sizeof(buf)) != 1) {
+        // Fallback to standard rand() if OpenSSL fails
+        return rand() % max;
+    }
+    
+    num = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
+    return num % max;
+}
 
 // Get the wordlist path
 const char* get_wordlist_path(void) {
@@ -78,20 +98,6 @@ const char* get_wordlist_path(void) {
     strncpy(wordlist_path, "data/eff_large_wordlist.txt", sizeof(wordlist_path) - 1);
     wordlist_path[sizeof(wordlist_path) - 1] = '\0';
     return wordlist_path;
-}
-
-// Get cryptographically secure random number
-static unsigned int get_random_number(unsigned int max) {
-    unsigned char buf[4];
-    unsigned int num;
-    
-    if (RAND_bytes(buf, sizeof(buf)) != 1) {
-        // Fallback to standard rand() if OpenSSL fails
-        return rand() % max;
-    }
-    
-    num = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
-    return num % max;
 }
 
 // Load wordlist from file
