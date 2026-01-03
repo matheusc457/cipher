@@ -259,6 +259,7 @@ Passphrases like `correct-horse-battery-staple` are:
 
 ## 📁 Project Structure
 
+### Repository Structure
 ```
 cipher/
 ├── src/
@@ -266,15 +267,34 @@ cipher/
 │   ├── crypto.c/h       # Encryption/decryption functions
 │   ├── password.c/h     # Password management logic
 │   ├── generator.c/h    # Random password generator
-│   ├── passphrase.c/h   # Passphrase generator (NEW!)
+│   ├── passphrase.c/h   # Passphrase generator
 │   ├── file_io.c/h      # File operations
 │   └── utils.c/h        # Utility functions
 ├── data/
-│   ├── passwords.dat              # Encrypted password storage
-│   └── eff_large_wordlist.txt     # EFF wordlist (7,776 words)
+│   └── eff_large_wordlist.txt  # EFF wordlist (7,776 words)
 ├── Makefile             # Build configuration
 └── README.md            # This file
 ```
+
+### User Data Location
+
+Cipher stores your encrypted vault in your home directory:
+
+**Linux/macOS:**
+```
+~/.cipher/
+├── passwords.dat           # Encrypted password vault
+└── passwords.dat.backup    # Automatic backup
+```
+
+**Windows:**
+```
+C:\Users\YourName\.cipher\
+├── passwords.dat
+└── passwords.dat.backup
+```
+
+This ensures your vault is always accessible regardless of where you run the `cipher` command.
 
 ---
 
@@ -292,7 +312,10 @@ cipher/
 
 * ⚠️ Never share your master password
 * ⚠️ Use a strong master password (12+ characters or 4+ word passphrase)
-* ⚠️ Keep backups of your `passwords.dat` file
+* ⚠️ Keep backups of your vault:
+  * Linux/macOS: `~/.cipher/passwords.dat`
+  * Windows: `%USERPROFILE%\.cipher\passwords.dat`
+* ⚠️ Automatic backups are created at `~/.cipher/passwords.dat.backup`
 * ⚠️ This is an educational project - use at your own risk
 
 ### Limitations
@@ -317,6 +340,39 @@ This project uses the **EFF Large Wordlist** for passphrase generation.
 The wordlist was created by Joseph Bonneau and EFF, designed specifically for creating strong, memorable passphrases.
 
 **Attribution:** This project includes the EFF Large Wordlist, © 2016 Electronic Frontier Foundation, licensed under CC BY 3.0 US.
+
+---
+
+## ❓ FAQ
+
+### Where is my password vault stored?
+
+Your encrypted vault is stored in your home directory:
+- **Linux/macOS:** `~/.cipher/passwords.dat`
+- **Windows:** `%USERPROFILE%\.cipher\passwords.dat`
+
+This means you can run `cipher` from any directory and it will always use the same vault.
+
+### How do I backup my passwords?
+
+Simply copy the vault file:
+```bash
+# Linux/macOS
+cp ~/.cipher/passwords.dat ~/backup-location/
+
+# Windows
+copy %USERPROFILE%\.cipher\passwords.dat C:\backup-location\
+```
+
+Cipher also creates automatic backups at `~/.cipher/passwords.dat.backup` when you change your master password.
+
+### Can I move my vault to another computer?
+
+Yes! Just copy the `passwords.dat` file to the same location (`~/.cipher/`) on the new computer and use the same master password.
+
+### What if I forget my master password?
+
+Unfortunately, there's no way to recover your passwords without the master password. The encryption is designed so that only someone with the correct master password can decrypt the vault. This is a security feature, not a bug.
 
 ---
 
