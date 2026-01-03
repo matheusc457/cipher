@@ -258,8 +258,12 @@ Crack time: ~71 years
 
 What would you like to do?
 [1] Generate another
-[2] Copy to clipboard (manual)
+[2] Copy to clipboard (auto-clears in 30s)
 [3] Back
+
+Choice: 2
+
+[SUCCESS] Passphrase copied! Auto-clears in 30 seconds.
 ```
 
 ---
