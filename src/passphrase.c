@@ -3,12 +3,17 @@
 #include <ctype.h>
 #include <math.h>
 #include <openssl/rand.h>
-#include <unistd.h>
-#include <libgen.h>
-#include <limits.h>
 
-#ifdef __APPLE__
-    #include <mach-o/dyld.h>
+#ifdef _WIN32
+    #include <windows.h>
+    #define PATH_MAX MAX_PATH
+#else
+    #include <unistd.h>
+    #include <libgen.h>
+    #include <limits.h>
+    #ifdef __APPLE__
+        #include <mach-o/dyld.h>
+    #endif
 #endif
 
 // Global wordlist storage
@@ -24,22 +29,27 @@ const char* get_wordlist_path(void) {
     }
     
     char exe_path[PATH_MAX];
+    char exe_path_copy[PATH_MAX];
     char *dir_path = NULL;
     
 #ifdef __linux__
     ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
     if (len != -1) {
         exe_path[len] = '\0';
-        dir_path = dirname(exe_path);
+        strncpy(exe_path_copy, exe_path, sizeof(exe_path_copy));
+        dir_path = dirname(exe_path_copy);
     }
 #elif defined(__APPLE__)
     uint32_t size = sizeof(exe_path);
     if (_NSGetExecutablePath(exe_path, &size) == 0) {
-        dir_path = dirname(exe_path);
+        strncpy(exe_path_copy, exe_path, sizeof(exe_path_copy));
+        dir_path = dirname(exe_path_copy);
     }
 #elif defined(_WIN32)
-    GetModuleFileName(NULL, exe_path, sizeof(exe_path));
-    dir_path = dirname(exe_path);
+    if (GetModuleFileName(NULL, exe_path, sizeof(exe_path)) != 0) {
+        strncpy(exe_path_copy, exe_path, sizeof(exe_path_copy));
+        dir_path = dirname(exe_path_copy);
+    }
 #endif
     
     if (dir_path) {
