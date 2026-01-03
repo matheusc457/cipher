@@ -135,3 +135,15 @@ void trim_whitespace(char *str) {
     
     end[1] = '\0';
 }
+
+void print_password_hidden(const char *password, int show) {
+    if (show) {
+        printf("%s%s%s", COLOR_GREEN, password, COLOR_RESET);
+    } else {
+        printf("%s", COLOR_MAGENTA);
+        for (size_t i = 0; i < strlen(password); i++) {
+            printf("*");
+        }
+        printf("%s", COLOR_RESET);
+    }
+}

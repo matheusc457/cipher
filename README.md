@@ -6,7 +6,7 @@
 [![Language](https://img.shields.io/badge/Language-C-00599C.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)](https://github.com/matheusc457/cipher)
 
-[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Passphrase Generator](#-passphrase-generator-new) • [Documentation](#-documentation) • [Contributing](#-contributing)
+[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Passphrase Generator](#-passphrase-generator) • [Documentation](#-documentation) • [Contributing](#-contributing)
 
 ---
 
@@ -22,6 +22,8 @@
 * 🔓 **Open Source**: Transparent and auditable code
 * 💾 **Portable**: Single encrypted file for all your passwords
 * 🎲 **Smart Generation**: Random passwords AND memorable passphrases
+* 📋 **Clipboard Integration**: Auto-copy with security timeout
+* 👁️ **Show/Hide**: Toggle password visibility
 
 ---
 
@@ -32,9 +34,14 @@
 * ✅ **Dual Password Generation**:
   * 🔤 **Random Character Generator**: Strong random passwords (e.g., `K#9mP@xL2$qR7nWz`)
   * 🎲 **Passphrase Generator**: Memorable word-based passwords (e.g., `correct-horse-battery-staple`)
+* ✅ **Clipboard Integration**: 
+  * Auto-copy passwords to clipboard
+  * Security timeout (auto-clears after 30-45 seconds)
+  * Cross-platform support (Linux, macOS, Windows)
+* ✅ **Show/Hide Password**: Toggle password visibility with interactive menu
 * ✅ **CRUD Operations**: Add, search, update, and delete passwords
 * ✅ **Password Strength Analyzer**: Check if your passwords are strong
-* ✅ **Secure Storage**: Encrypted file-based storage
+* ✅ **Secure Storage**: Encrypted file-based storage in `~/.cipher/`
 * ✅ **Cross-Platform**: Works on Linux, macOS, and Windows
 * ✅ **Entropy Calculation**: Know exactly how secure your passwords are
 
@@ -43,7 +50,6 @@
 * Password expiration reminders
 * Two-factor authentication (2FA) storage
 * Import/Export functionality
-* Clipboard integration with auto-clear
 * Password history tracking
 * Multi-user support
 * Backup and restore system
@@ -54,19 +60,35 @@
 
 ### Prerequisites
 
-* GCC compiler (or any C compiler)
+**Required:**
+* GCC or Clang compiler
 * Make
 * OpenSSL development libraries (for encryption)
+
+**Optional (for clipboard support):**
+* **Linux X11:** `xclip` or `xsel`
+* **Linux Wayland:** `wl-clipboard`
+* **macOS:** Built-in `pbcopy` (no install needed)
+* **Windows:** Built-in clipboard API (no install needed)
 
 ### Linux/macOS
 
 ```bash
-# Install OpenSSL (if not already installed)
+# Install required dependencies
 # Ubuntu/Debian:
 sudo apt-get install libssl-dev
 
 # macOS:
 brew install openssl
+
+# Install optional clipboard tools (Linux only)
+# X11:
+sudo apt install xclip      # Recommended
+# OR
+sudo apt install xsel        # Alternative
+
+# Wayland:
+sudo apt install wl-clipboard
 
 # Clone the repository (wordlist included!)
 git clone https://github.com/matheusc457/cipher.git
@@ -112,9 +134,9 @@ Confirm master password: ********
 ### Main Menu
 
 ```
-╔══════════════════════════════════════╗
-║        CIPHER PASSWORD MANAGER       ║
-╚══════════════════════════════════════╝
+╔════════════════════════════════════════╗
+║        CIPHER PASSWORD MANAGER         ║
+╚════════════════════════════════════════╝
 
 [1] Add new password
 [2] Search password
@@ -131,7 +153,7 @@ Choose an option: _
 
 ### Example Usage
 
-#### Adding a password
+#### Adding a password with clipboard
 
 ```
 Choose an option: 1
@@ -143,21 +165,21 @@ Password options:
   [1] Enter manually
   [2] Generate random password
   [3] Generate passphrase
-Choose: 3
+Choose: 2
 
-Passphrase presets:
-  [1] Basic    - 3 words
-  [2] Standard - 4 words (recommended)
-  [3] Strong   - 5 words
-Choose preset: 2
+Password length (8-32): 16
+Include uppercase? (y/n): y
+Include numbers? (y/n): y
+Include symbols? (y/n): y
 
-Generated passphrase: correct-horse-battery-staple
-Entropy: 51.7 bits
+Generated password: K#9mP@xL2$qR7nWz
+Strength: STRONG
 
+[INFO] Password copied to clipboard! (auto-clears in 45s)
 [SUCCESS] Password added successfully!
 ```
 
-#### Searching for a password
+#### Searching with show/hide
 
 ```
 Choose an option: 2
@@ -170,32 +192,30 @@ Service name: Gmail
 
   Service:  Gmail
   Username: john@example.com
-  Password: correct-horse-battery-staple
+  Password: ****************
   
   Strength: STRONG
+
+Actions:
+  [S] Show password
+  [C] Copy to clipboard (auto-clears in 30s)
+  [B] Back to menu
+
+Choose: s
+
+  Password: K#9mP@xL2$qR7nWz
+
+Actions:
+  [S] Hide password
+  [C] Copy to clipboard (auto-clears in 30s)
+  [B] Back to menu
+
+Choose: c
+
+[SUCCESS] Password copied! Auto-clears in 30 seconds.
 ```
 
-#### Generating a strong password
-
-```
-Choose an option: 6
-
-Password length (8-32): 16
-Include uppercase letters? (y/n): y
-Include numbers? (y/n): y
-Include symbols? (y/n): y
-
-Generated password: K#9mP@xL2$qR7nWz
-Strength: STRONG
-```
-
----
-
-## 🎲 Passphrase Generator (NEW!)
-
-Generate memorable, secure passphrases using the EFF wordlist.
-
-### Usage Example
+#### Generating a passphrase
 
 ```
 Choose an option: 7
@@ -230,7 +250,7 @@ Choice: 2
 
 Generating passphrase...
 
-  correct-horse-battery-staple
+  winter-forest-mountain-river
 
 Strength: ######---- STRONG
 Entropy: 51.7 bits
@@ -241,6 +261,12 @@ What would you like to do?
 [2] Copy to clipboard (manual)
 [3] Back
 ```
+
+---
+
+## 🎲 Passphrase Generator
+
+Generate memorable, secure passphrases using the EFF wordlist.
 
 ### Why Passphrases?
 
@@ -257,6 +283,36 @@ Passphrases like `correct-horse-battery-staple` are:
 
 ---
 
+## 📋 Clipboard Security
+
+Cipher includes **cross-platform clipboard integration** with automatic security timeout:
+
+### Features
+* ✅ **Auto-copy**: Passwords copied automatically when generated
+* ✅ **Security timeout**: Clipboard auto-clears after 30-45 seconds
+* ✅ **Cross-platform**: Works on Linux (X11/Wayland), macOS, and Windows
+* ✅ **Privacy**: Uses background process to clear clipboard
+
+### Supported Backends
+* **Linux Wayland**: `wl-copy` (recommended for Wayland)
+* **Linux X11**: `xclip` (recommended) or `xsel`
+* **macOS**: `pbcopy` (built-in)
+* **Windows**: Native clipboard API (built-in)
+
+### Installation (Linux only)
+
+```bash
+# X11 users:
+sudo apt install xclip
+
+# Wayland users:
+sudo apt install wl-clipboard
+```
+
+If clipboard tools are not installed, Cipher will still work normally - you just won't have auto-copy functionality.
+
+---
+
 ## 📁 Project Structure
 
 ### Repository Structure
@@ -268,6 +324,7 @@ cipher/
 │   ├── password.c/h     # Password management logic
 │   ├── generator.c/h    # Random password generator
 │   ├── passphrase.c/h   # Passphrase generator
+│   ├── clipboard.c/h    # Clipboard integration (NEW!)
 │   ├── file_io.c/h      # File operations
 │   └── utils.c/h        # Utility functions
 ├── data/
@@ -308,6 +365,13 @@ This ensures your vault is always accessible regardless of where you run the `ci
 * **Iterations**: 100,000 iterations for key derivation
 * **Random Generation**: OpenSSL RAND_bytes for cryptographically secure randomness
 
+### Clipboard Security
+
+* **Auto-clear**: Clipboard automatically cleared after timeout
+* **Background process**: Uses fork (Unix) or thread (Windows) for secure clearing
+* **No persistence**: Clipboard contents never stored on disk
+* **Configurable timeout**: 30-45 seconds depending on context
+
 ### Best Practices
 
 * ⚠️ Never share your master password
@@ -316,6 +380,7 @@ This ensures your vault is always accessible regardless of where you run the `ci
   * Linux/macOS: `~/.cipher/passwords.dat`
   * Windows: `%USERPROFILE%\.cipher\passwords.dat`
 * ⚠️ Automatic backups are created at `~/.cipher/passwords.dat.backup`
+* ⚠️ Be aware that clipboard can be read by other applications during timeout period
 * ⚠️ This is an educational project - use at your own risk
 
 ### Limitations
@@ -373,6 +438,28 @@ Yes! Just copy the `passwords.dat` file to the same location (`~/.cipher/`) on t
 ### What if I forget my master password?
 
 Unfortunately, there's no way to recover your passwords without the master password. The encryption is designed so that only someone with the correct master password can decrypt the vault. This is a security feature, not a bug.
+
+### Why isn't clipboard working?
+
+**Linux:** Install clipboard tools:
+```bash
+# X11:
+sudo apt install xclip
+
+# Wayland:
+sudo apt install wl-clipboard
+```
+
+**macOS/Windows:** Clipboard is built-in and should work automatically.
+
+### Is it safe to use clipboard?
+
+Cipher implements security best practices for clipboard usage:
+- Auto-clears after 30-45 seconds
+- Never persists clipboard data to disk
+- Uses background process for secure clearing
+
+However, be aware that other applications can read the clipboard during the timeout period. For maximum security, manually clear the clipboard after use or don't use the clipboard feature.
 
 ---
 

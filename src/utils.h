@@ -20,11 +20,14 @@ void clear_input_buffer(void);
 void print_header(void);
 void print_success(const char *message);
 void print_error(const char *message);
-void print_info(const char *format, ...); // Modificado para aceitar argumentos variáveis
+void print_info(const char *format, ...);
 void press_enter_to_continue(void);
 int get_int_input(const char *prompt, int min, int max);
 void get_string_input(const char *prompt, char *buffer, size_t size);
 void get_password_input(const char *prompt, char *buffer, size_t size);
 void trim_whitespace(char *str);
+
+// Password display (show/hide)
+void print_password_hidden(const char *password, int show);
 
 #endif // UTILS_H

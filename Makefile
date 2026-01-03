@@ -17,6 +17,7 @@ SOURCES = $(SRC_DIR)/main.c \
           $(SRC_DIR)/password.c \
           $(SRC_DIR)/generator.c \
           $(SRC_DIR)/passphrase.c \
+          $(SRC_DIR)/clipboard.c \
           $(SRC_DIR)/file_io.c \
           $(SRC_DIR)/utils.c
 
@@ -25,6 +26,7 @@ OBJECTS = $(OBJ_DIR)/main.o \
           $(OBJ_DIR)/password.o \
           $(OBJ_DIR)/generator.o \
           $(OBJ_DIR)/passphrase.o \
+          $(OBJ_DIR)/clipboard.o \
           $(OBJ_DIR)/file_io.o \
           $(OBJ_DIR)/utils.o
 
@@ -46,7 +48,7 @@ $(TARGET): $(OBJECTS)
 	@echo "Linking $(TARGET) with $(CC)..."
 	$(CC) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
 
-$(OBJ_DIR)/main.o: $(SRC_DIR)/main.c $(SRC_DIR)/password.h $(SRC_DIR)/generator.h $(SRC_DIR)/passphrase.h $(SRC_DIR)/crypto.h
+$(OBJ_DIR)/main.o: $(SRC_DIR)/main.c $(SRC_DIR)/password.h $(SRC_DIR)/generator.h $(SRC_DIR)/passphrase.h $(SRC_DIR)/crypto.h $(SRC_DIR)/clipboard.h
 	@echo "Compiling main.c with $(CC)..."
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/main.c -o $(OBJ_DIR)/main.o
 
@@ -65,6 +67,10 @@ $(OBJ_DIR)/generator.o: $(SRC_DIR)/generator.c $(SRC_DIR)/generator.h $(SRC_DIR)
 $(OBJ_DIR)/passphrase.o: $(SRC_DIR)/passphrase.c $(SRC_DIR)/passphrase.h $(SRC_DIR)/utils.h
 	@echo "Compiling passphrase.c with $(CC)..."
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/passphrase.c -o $(OBJ_DIR)/passphrase.o
+
+$(OBJ_DIR)/clipboard.o: $(SRC_DIR)/clipboard.c $(SRC_DIR)/clipboard.h
+	@echo "Compiling clipboard.c with $(CC)..."
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/clipboard.c -o $(OBJ_DIR)/clipboard.o
 
 $(OBJ_DIR)/file_io.o: $(SRC_DIR)/file_io.c $(SRC_DIR)/file_io.h
 	@echo "Compiling file_io.c with $(CC)..."

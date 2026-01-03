@@ -6,7 +6,15 @@
 #include "password.h"
 #include "generator.h"
 #include "passphrase.h"
+#include "clipboard.h"
 #include "file_io.h"
+
+#ifdef _WIN32
+    #include <windows.h>
+    #define sleep(x) Sleep((x) * 1000)
+#else
+    #include <unistd.h>
+#endif
 
 #define MASTER_PASSWORD_SIZE 256
 
@@ -34,7 +42,7 @@ void show_menu(void) {
 void add_password_menu(void) {
     clear_screen();
     print_header();
-    printf(COLOR_YELLOW "═══ Add New Password ═══\n\n" COLOR_RESET);
+    printf(COLOR_YELLOW "=== Add New Password ===\n\n" COLOR_RESET);
     
     char service[MAX_SERVICE_NAME];
     char username[MAX_USERNAME];
@@ -93,6 +101,13 @@ void add_password_menu(void) {
                    get_strength_color(strength),
                    get_strength_description(strength),
                    COLOR_RESET);
+            
+            // Clipboard integration
+            if (clipboard_is_available()) {
+                if (clipboard_copy_with_timeout(password, 45)) {
+                    print_info("Password copied to clipboard! (auto-clears in 45s)");
+                }
+            }
         } else {
             print_error("Failed to generate password!");
             press_enter_to_continue();
@@ -128,6 +143,13 @@ void add_password_menu(void) {
             double entropy = calculate_entropy(config.num_words);
             printf("Entropy: %.1f bits\n", entropy);
             
+            // Clipboard integration
+            if (clipboard_is_available()) {
+                if (clipboard_copy_with_timeout(password, 45)) {
+                    print_info("Passphrase copied to clipboard! (auto-clears in 45s)");
+                }
+            }
+            
             free(generated);
         } else {
             print_error("Failed to generate passphrase!");
@@ -157,39 +179,76 @@ void add_password_menu(void) {
 void search_password_menu(void) {
     clear_screen();
     print_header();
-    printf(COLOR_YELLOW "═══ Search Password ═══\n\n" COLOR_RESET);
+    printf(COLOR_YELLOW "=== Search Password ===\n\n" COLOR_RESET);
     
     char service[MAX_SERVICE_NAME];
     get_string_input("Service name: ", service, sizeof(service));
     
     PasswordEntry *entry = pm_find_entry(pm, service);
-    if (entry) {
-        printf("\n");
+    if (!entry) {
+        print_error("Service not found!");
+        press_enter_to_continue();
+        return;
+    }
+    
+    // Interactive menu with show/hide/copy
+    int show_password = 0;
+    int running = 1;
+    
+    while (running) {
+        clear_screen();
+        print_header();
+        
         printf(COLOR_CYAN "╔════════════════════════════════════════╗\n");
         printf("║           Password Found               ║\n");
         printf("╚════════════════════════════════════════╝\n" COLOR_RESET);
         printf("\n");
         printf("  Service:  %s%s%s\n", COLOR_GREEN, entry->service, COLOR_RESET);
         printf("  Username: %s\n", entry->username);
-        printf("  Password: %s\n", entry->password);
-        printf("\n");
+        printf("  Password: ");
+        print_password_hidden(entry->password, show_password);
+        printf("\n\n");
         
         PasswordStrength strength = calculate_strength(entry->password);
         printf("  Strength: %s%s%s\n",
                get_strength_color(strength),
                get_strength_description(strength),
                COLOR_RESET);
-    } else {
-        print_error("Service not found!");
+        
+        printf("\n");
+        printf(COLOR_CYAN "Actions:\n" COLOR_RESET);
+        printf("  [S] %s password\n", show_password ? "Hide" : "Show");
+        
+        if (clipboard_is_available()) {
+            printf("  [C] Copy to clipboard (auto-clears in 30s)\n");
+        }
+        
+        printf("  [B] Back to menu\n");
+        printf("\n");
+        
+        char choice[10];
+        get_string_input("Choose: ", choice, sizeof(choice));
+        
+        if (choice[0] == 's' || choice[0] == 'S') {
+            show_password = !show_password;
+        } else if ((choice[0] == 'c' || choice[0] == 'C') && clipboard_is_available()) {
+            if (clipboard_copy_with_timeout(entry->password, 30)) {
+                print_success("Password copied! Auto-clears in 30 seconds.");
+                sleep(2);
+            } else {
+                print_error("Failed to copy to clipboard.");
+                sleep(2);
+            }
+        } else if (choice[0] == 'b' || choice[0] == 'B') {
+            running = 0;
+        }
     }
-    
-    press_enter_to_continue();
 }
 
 void update_password_menu(void) {
     clear_screen();
     print_header();
-    printf(COLOR_YELLOW "═══ Update Password ═══\n\n" COLOR_RESET);
+    printf(COLOR_YELLOW "=== Update Password ===\n\n" COLOR_RESET);
     
     char service[MAX_SERVICE_NAME];
     get_string_input("Service name: ", service, sizeof(service));
@@ -228,7 +287,7 @@ void update_password_menu(void) {
 void delete_password_menu(void) {
     clear_screen();
     print_header();
-    printf(COLOR_YELLOW "═══ Delete Password ═══\n\n" COLOR_RESET);
+    printf(COLOR_YELLOW "=== Delete Password ===\n\n" COLOR_RESET);
     
     char service[MAX_SERVICE_NAME];
     get_string_input("Service name: ", service, sizeof(service));
@@ -258,7 +317,7 @@ void delete_password_menu(void) {
 void generate_password_menu(void) {
     clear_screen();
     print_header();
-    printf(COLOR_YELLOW "═══ Generate Strong Password ═══\n\n" COLOR_RESET);
+    printf(COLOR_YELLOW "=== Generate Strong Password ===\n\n" COLOR_RESET);
     
     PasswordOptions opts;
     opts.length = get_int_input("Password length (8-32): ", 8, 32);
@@ -287,6 +346,19 @@ void generate_password_menu(void) {
                get_strength_color(strength),
                get_strength_description(strength),
                COLOR_RESET);
+        
+        // Clipboard integration
+        if (clipboard_is_available()) {
+            char copy[10];
+            get_string_input("\nCopy to clipboard? (y/n): ", copy, sizeof(copy));
+            if (copy[0] == 'y' || copy[0] == 'Y') {
+                if (clipboard_copy_with_timeout(password, 30)) {
+                    print_success("Password copied! Auto-clears in 30 seconds.");
+                } else {
+                    print_error("Failed to copy to clipboard.");
+                }
+            }
+        }
     } else {
         print_error("Failed to generate password!");
     }
@@ -298,7 +370,7 @@ void generate_password_menu(void) {
 void change_master_password_menu(void) {
     clear_screen();
     print_header();
-    printf(COLOR_YELLOW "═══ Change Master Password ═══\n\n" COLOR_RESET);
+    printf(COLOR_YELLOW "=== Change Master Password ===\n\n" COLOR_RESET);
     
     char old_pass[MASTER_PASSWORD_SIZE];
     char new_pass[MASTER_PASSWORD_SIZE];
@@ -404,6 +476,14 @@ int unlock_vault(void) {
     print_success("Vault unlocked successfully!");
     printf("\n");
     print_info("Loaded %zu password(s)", pm_get_count(pm));
+    
+    // Show clipboard status
+    if (clipboard_is_available()) {
+        print_info("Clipboard support: %s", clipboard_get_backend());
+    } else {
+        print_info("Clipboard not available. Install xclip/xsel/wl-clipboard for copy support.");
+    }
+    
     press_enter_to_continue();
     return 1;
 }
