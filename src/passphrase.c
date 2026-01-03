@@ -3,11 +3,61 @@
 #include <ctype.h>
 #include <math.h>
 #include <openssl/rand.h>
+#include <unistd.h>
+#include <libgen.h>
+#include <limits.h>
+
+#ifdef __APPLE__
+    #include <mach-o/dyld.h>
+#endif
 
 // Global wordlist storage
 static char wordlist[MAX_WORDS][MAX_WORD_LENGTH];
 static int wordlist_size = 0;
 static int wordlist_loaded = 0;
+static char wordlist_path[512] = {0};
+
+// Get the wordlist path
+const char* get_wordlist_path(void) {
+    if (wordlist_path[0] != '\0') {
+        return wordlist_path;
+    }
+    
+    char exe_path[PATH_MAX];
+    char *dir_path = NULL;
+    
+#ifdef __linux__
+    ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+    if (len != -1) {
+        exe_path[len] = '\0';
+        dir_path = dirname(exe_path);
+    }
+#elif defined(__APPLE__)
+    uint32_t size = sizeof(exe_path);
+    if (_NSGetExecutablePath(exe_path, &size) == 0) {
+        dir_path = dirname(exe_path);
+    }
+#elif defined(_WIN32)
+    GetModuleFileName(NULL, exe_path, sizeof(exe_path));
+    dir_path = dirname(exe_path);
+#endif
+    
+    if (dir_path) {
+        // Try ../data/eff_large_wordlist.txt (relative to bin/)
+        snprintf(wordlist_path, sizeof(wordlist_path), "%s/../data/eff_large_wordlist.txt", dir_path);
+        
+        // Check if file exists
+        FILE *test = fopen(wordlist_path, "r");
+        if (test) {
+            fclose(test);
+            return wordlist_path;
+        }
+    }
+    
+    // Fallback to relative path
+    strncpy(wordlist_path, "data/eff_large_wordlist.txt", sizeof(wordlist_path) - 1);
+    return wordlist_path;
+}
 
 // Get cryptographically secure random number
 static unsigned int get_random_number(unsigned int max) {
@@ -25,11 +75,12 @@ static unsigned int get_random_number(unsigned int max) {
 
 // Load wordlist from file
 int passphrase_init(void) {
-    FILE *file = fopen(WORDLIST_PATH, "r");
+    const char *path = get_wordlist_path();
+    FILE *file = fopen(path, "r");
     if (!file) {
-        fprintf(stderr, "Error: Could not open wordlist file: %s\n", WORDLIST_PATH);
+        fprintf(stderr, "Error: Could not open wordlist file: %s\n", path);
         fprintf(stderr, "Download it with:\n");
-        fprintf(stderr, "  cd data && wget https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt\n");
+        fprintf(stderr, "  wget -P data https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt\n");
         return -1;
     }
     
