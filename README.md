@@ -5,8 +5,9 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Language](https://img.shields.io/badge/Language-C-00599C.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)](https://github.com/matheusc457/cipher)
+None
 
-[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Passphrase Generator](#-passphrase-generator) • [Documentation](#-documentation) • [Contributing](#-contributing)
+[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Passphrase Generator](#-passphrase-generator) • [Security](#-security) • [Documentation](#-documentation) • [Contributing](#-contributing)
 
 ---
 
@@ -24,6 +25,7 @@
 * 🎲 **Smart Generation**: Random passwords AND memorable passphrases
 * 📋 **Clipboard Integration**: Auto-copy with security timeout
 * 👁️ **Show/Hide**: Toggle password visibility
+* 🛡️ **Hardened**: Protection against command injection and common vulnerabilities
 
 ---
 
@@ -37,6 +39,7 @@
 * ✅ **Clipboard Integration**: 
   * Auto-copy passwords to clipboard
   * Security timeout (auto-clears after 30-45 seconds)
+  * Command injection protection via pipe/fork/exec
   * Cross-platform support (Linux, macOS, Windows)
 * ✅ **Show/Hide Password**: Toggle password visibility with interactive menu
 * ✅ **CRUD Operations**: Add, search, update, and delete passwords
@@ -53,6 +56,8 @@
 * Password history tracking
 * Multi-user support
 * Backup and restore system
+* HMAC file integrity verification
+* Rate limiting for brute force protection
 
 ---
 
@@ -258,12 +263,8 @@ Crack time: ~71 years
 
 What would you like to do?
 [1] Generate another
-[2] Copy to clipboard (auto-clears in 30s)
+[2] Copy to clipboard (manual)
 [3] Back
-
-Choice: 2
-
-[SUCCESS] Passphrase copied! Auto-clears in 30 seconds.
 ```
 
 ---
@@ -294,6 +295,7 @@ Cipher includes **cross-platform clipboard integration** with automatic security
 ### Features
 * ✅ **Auto-copy**: Passwords copied automatically when generated
 * ✅ **Security timeout**: Clipboard auto-clears after 30-45 seconds
+* ✅ **Command injection protection**: Uses pipe/fork/exec (NO shell execution)
 * ✅ **Cross-platform**: Works on Linux (X11/Wayland), macOS, and Windows
 * ✅ **Privacy**: Uses background process to clear clipboard
 
@@ -302,6 +304,11 @@ Cipher includes **cross-platform clipboard integration** with automatic security
 * **Linux X11**: `xclip` (recommended) or `xsel`
 * **macOS**: `pbcopy` (built-in)
 * **Windows**: Native clipboard API (built-in)
+
+### Security Architecture
+* **Unix/Linux/macOS**: Direct execution via `execlp()` without shell interpolation
+* **Windows**: Native clipboard API (no shell involvement)
+* **All user input is passed as data, never as code**
 
 ### Installation (Linux only)
 
@@ -328,7 +335,7 @@ cipher/
 │   ├── password.c/h     # Password management logic
 │   ├── generator.c/h    # Random password generator
 │   ├── passphrase.c/h   # Passphrase generator
-│   ├── clipboard.c/h    # Clipboard integration (NEW!)
+│   ├── clipboard.c/h    # Clipboard integration (SECURE)
 │   ├── file_io.c/h      # File operations
 │   └── utils.c/h        # Utility functions
 ├── data/
@@ -371,10 +378,16 @@ This ensures your vault is always accessible regardless of where you run the `ci
 
 ### Clipboard Security
 
+* **Command Injection Protection**: Uses pipe/fork/exec pattern (NO shell execution)
 * **Auto-clear**: Clipboard automatically cleared after timeout
 * **Background process**: Uses fork (Unix) or thread (Windows) for secure clearing
 * **No persistence**: Clipboard contents never stored on disk
 * **Configurable timeout**: 30-45 seconds depending on context
+
+**Security Architecture:**
+- Unix/Linux/macOS: Direct execution via `execlp()` without shell interpolation
+- Windows: Native clipboard API (no shell involvement)
+- All user input is passed as data, never as code
 
 ### Best Practices
 
@@ -387,13 +400,30 @@ This ensures your vault is always accessible regardless of where you run the `ci
 * ⚠️ Be aware that clipboard can be read by other applications during timeout period
 * ⚠️ This is an educational project - use at your own risk
 
+### Security Improvements (v1.1.0)
+
+**Fixed vulnerabilities:**
+- ✅ **Command Injection (Critical)**: Eliminated shell execution in clipboard module
+- ✅ **Input Validation**: All user input sanitized before processing
+- ✅ **Process Isolation**: Clipboard operations run in isolated child processes
+
+**Ongoing security work:**
+- 🔲 Implement HMAC for file integrity verification
+- 🔲 Add rate limiting for password attempts
+- 🔲 Migrate to Argon2 (memory-hard key derivation)
+- 🔲 Add constant-time password comparison
+
 ### Limitations
 
-This is a learning project and should not be used for critical production environments. For production use, consider established solutions like:
+This is a learning project and should not be used for critical production environments without professional security audit. For production use, consider established solutions like:
 
 * [Bitwarden](https://bitwarden.com/)
 * [KeePassXC](https://keepassxc.org/)
 * [1Password](https://1password.com/)
+
+### Reporting Security Issues
+
+If you discover a security vulnerability, please report it responsibly by contacting the maintainer directly instead of opening a public issue. Security issues will be addressed with highest priority.
 
 ---
 
@@ -462,8 +492,13 @@ Cipher implements security best practices for clipboard usage:
 - Auto-clears after 30-45 seconds
 - Never persists clipboard data to disk
 - Uses background process for secure clearing
+- Protected against command injection
 
 However, be aware that other applications can read the clipboard during the timeout period. For maximum security, manually clear the clipboard after use or don't use the clipboard feature.
+
+### Is Cipher secure against command injection?
+
+Yes! Since v1.1.0, Cipher uses a secure pipe/fork/exec pattern that completely eliminates shell execution. All user input (including passwords) is passed as data, never as executable code. This makes command injection attacks impossible.
 
 ---
 

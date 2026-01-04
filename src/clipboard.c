@@ -8,30 +8,13 @@
 #else
     #include <unistd.h>
     #include <sys/wait.h>
+    #include <errno.h>
 #endif
 
 static char backend_name[32] = "unknown";
 
-// Escape single quotes for shell commands
-static void escape_for_shell(const char *input, char *output, size_t output_size) {
-    size_t j = 0;
-    for (size_t i = 0; input[i] && j < output_size - 1; i++) {
-        if (input[i] == '\'') {
-            if (j + 4 < output_size) {
-                output[j++] = '\'';
-                output[j++] = '\\';
-                output[j++] = '\'';
-                output[j++] = '\'';
-            }
-        } else {
-            output[j++] = input[i];
-        }
-    }
-    output[j] = '\0';
-}
-
 #ifdef _WIN32
-// Windows implementation using native API
+// Windows implementation using native API (unchanged - already safe)
 int clipboard_copy(const char *text) {
     if (!text || strlen(text) == 0) return 0;
     
@@ -102,56 +85,141 @@ int clipboard_is_available(void) {
 }
 
 #else
-// Unix/Linux/macOS implementation using external commands
+// Unix/Linux/macOS implementation using SAFE pipe/fork/exec pattern
 
+// Check if command exists in PATH
 static int check_command(const char *command) {
-    char cmd[256];
-    snprintf(cmd, sizeof(cmd), "which %s > /dev/null 2>&1", command);
-    return system(cmd) == 0;
+    char path_env[4096];
+    const char *path = getenv("PATH");
+    if (!path) return 0;
+    
+    strncpy(path_env, path, sizeof(path_env) - 1);
+    path_env[sizeof(path_env) - 1] = '\0';
+    
+    char *dir = strtok(path_env, ":");
+    while (dir) {
+        char full_path[512];
+        snprintf(full_path, sizeof(full_path), "%s/%s", dir, command);
+        
+        if (access(full_path, X_OK) == 0) {
+            return 1;
+        }
+        
+        dir = strtok(NULL, ":");
+    }
+    
+    return 0;
+}
+
+// SECURE clipboard copy using pipe/fork/exec (NO SHELL)
+static int safe_clipboard_copy(const char *text, const char *command, 
+                               const char *backend) {
+    if (!text || strlen(text) == 0) return 0;
+    
+    int pipefd[2];
+    if (pipe(pipefd) == -1) {
+        perror("pipe");
+        return 0;
+    }
+    
+    pid_t pid = fork();
+    
+    if (pid == -1) {
+        // Fork failed
+        perror("fork");
+        close(pipefd[0]);
+        close(pipefd[1]);
+        return 0;
+    }
+    
+    if (pid == 0) {
+        // Child process
+        close(pipefd[1]); // Close write end
+        
+        // Redirect stdin to read from pipe
+        if (dup2(pipefd[0], STDIN_FILENO) == -1) {
+            perror("dup2");
+            close(pipefd[0]);
+            exit(EXIT_FAILURE);
+        }
+        
+        close(pipefd[0]);
+        
+        // Execute command WITHOUT shell - prevents injection
+        if (strcmp(command, "wl-copy") == 0) {
+            execlp("wl-copy", "wl-copy", NULL);
+        } else if (strcmp(command, "pbcopy") == 0) {
+            execlp("pbcopy", "pbcopy", NULL);
+        } else if (strcmp(command, "xclip") == 0) {
+            execlp("xclip", "xclip", "-selection", "clipboard", NULL);
+        } else if (strcmp(command, "xsel") == 0) {
+            execlp("xsel", "xsel", "--clipboard", "--input", NULL);
+        }
+        
+        // If exec fails
+        perror("execlp");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Parent process
+    close(pipefd[0]); // Close read end
+    
+    // Write text to clipboard command via pipe
+    size_t text_len = strlen(text);
+    ssize_t written = write(pipefd[1], text, text_len);
+    
+    close(pipefd[1]);
+    
+    if (written != (ssize_t)text_len) {
+        perror("write");
+        waitpid(pid, NULL, 0); // Reap child
+        return 0;
+    }
+    
+    // Wait for child to complete
+    int status;
+    if (waitpid(pid, &status, 0) == -1) {
+        perror("waitpid");
+        return 0;
+    }
+    
+    // Check if command succeeded
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+        strncpy(backend_name, backend, sizeof(backend_name) - 1);
+        backend_name[sizeof(backend_name) - 1] = '\0';
+        return 1;
+    }
+    
+    return 0;
 }
 
 int clipboard_copy(const char *text) {
     if (!text || strlen(text) == 0) return 0;
     
-    char escaped[8192];
-    escape_for_shell(text, escaped, sizeof(escaped));
-    
-    char cmd[8192];
-    
     // Try Wayland first (wl-copy)
     if (check_command("wl-copy")) {
-        snprintf(cmd, sizeof(cmd), "printf '%%s' '%s' | wl-copy", escaped);
-        if (system(cmd) == 0) {
-            strncpy(backend_name, "wl-copy", sizeof(backend_name) - 1);
+        if (safe_clipboard_copy(text, "wl-copy", "wl-copy")) {
             return 1;
         }
     }
     
     // Try macOS (pbcopy)
     if (check_command("pbcopy")) {
-        snprintf(cmd, sizeof(cmd), "printf '%%s' '%s' | pbcopy", escaped);
-        if (system(cmd) == 0) {
-            strncpy(backend_name, "pbcopy", sizeof(backend_name) - 1);
+        if (safe_clipboard_copy(text, "pbcopy", "pbcopy")) {
             return 1;
         }
     }
     
     // Try X11 - xclip
     if (check_command("xclip")) {
-        snprintf(cmd, sizeof(cmd), 
-                 "printf '%%s' '%s' | xclip -selection clipboard", escaped);
-        if (system(cmd) == 0) {
-            strncpy(backend_name, "xclip", sizeof(backend_name) - 1);
+        if (safe_clipboard_copy(text, "xclip", "xclip")) {
             return 1;
         }
     }
     
     // Try X11 - xsel
     if (check_command("xsel")) {
-        snprintf(cmd, sizeof(cmd), 
-                 "printf '%%s' '%s' | xsel --clipboard --input", escaped);
-        if (system(cmd) == 0) {
-            strncpy(backend_name, "xsel", sizeof(backend_name) - 1);
+        if (safe_clipboard_copy(text, "xsel", "xsel")) {
             return 1;
         }
     }
