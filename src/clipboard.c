@@ -12,6 +12,7 @@
 #endif
 
 static char backend_name[32] = "unknown";
+static int backend_detected = 0;
 
 #ifdef _WIN32
 // Windows implementation using native API (unchanged - already safe)
@@ -47,6 +48,7 @@ int clipboard_copy(const char *text) {
     
     CloseClipboard();
     strncpy(backend_name, "native", sizeof(backend_name) - 1);
+    backend_detected = 1;
     return 1;
 }
 
@@ -81,6 +83,10 @@ int clipboard_copy_with_timeout(const char *text, int seconds) {
 }
 
 int clipboard_is_available(void) {
+    if (!backend_detected) {
+        strncpy(backend_name, "native", sizeof(backend_name) - 1);
+        backend_detected = 1;
+    }
     return 1; // Windows always has clipboard
 }
 
@@ -187,6 +193,7 @@ static int safe_clipboard_copy(const char *text, const char *command,
     if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
         strncpy(backend_name, backend, sizeof(backend_name) - 1);
         backend_name[sizeof(backend_name) - 1] = '\0';
+        backend_detected = 1;
         return 1;
     }
     
@@ -251,17 +258,46 @@ int clipboard_copy_with_timeout(const char *text, int seconds) {
 }
 
 int clipboard_is_available(void) {
-    return check_command("wl-copy") || 
-           check_command("pbcopy") || 
-           check_command("xclip") || 
-           check_command("xsel");
+    // Detect backend if not already detected
+    if (!backend_detected) {
+        if (check_command("wl-copy")) {
+            strncpy(backend_name, "wl-copy", sizeof(backend_name) - 1);
+            backend_detected = 1;
+            return 1;
+        }
+        
+        if (check_command("pbcopy")) {
+            strncpy(backend_name, "pbcopy", sizeof(backend_name) - 1);
+            backend_detected = 1;
+            return 1;
+        }
+        
+        if (check_command("xclip")) {
+            strncpy(backend_name, "xclip", sizeof(backend_name) - 1);
+            backend_detected = 1;
+            return 1;
+        }
+        
+        if (check_command("xsel")) {
+            strncpy(backend_name, "xsel", sizeof(backend_name) - 1);
+            backend_detected = 1;
+            return 1;
+        }
+        
+        // No backend found
+        strncpy(backend_name, "not available", sizeof(backend_name) - 1);
+        backend_detected = 1;
+        return 0;
+    }
+    
+    return strcmp(backend_name, "not available") != 0;
 }
 
 #endif
 
 const char* clipboard_get_backend(void) {
-    if (strcmp(backend_name, "unknown") == 0) {
-        clipboard_is_available(); // Try to detect
+    if (!backend_detected) {
+        clipboard_is_available(); // Force detection
     }
     return backend_name;
 }
