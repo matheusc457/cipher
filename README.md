@@ -6,7 +6,7 @@
 [![Language](https://img.shields.io/badge/Language-C-00599C.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)](https://github.com/matheusc457/cipher)
 
-[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Passphrase Generator](#-passphrase-generator) • [Security](#-security) • [Documentation](#-documentation) • [Contributing](#-contributing)
+[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Passphrase Generator](#passphrase-generator) • [Security](#security) • [Documentation](#documentation) • [Contributing](#contributing)
 
 ---
 
@@ -546,21 +546,18 @@ make CC=clang debug
 
 ---
 
-
 ## 📚 Documentation
 
 For detailed information about the project:
 
-* **Architecture**: See code structure in [Project Structure](#-project-structure)
-* **Security Details**: See [Security](#-security) section
+* **Architecture**: See code structure in [Project Structure](#project-structure)
+* **Security Details**: See [Security](#security) section
 * **API Reference**: Coming soon
-* **Contributing Guide**: See [Contributing](#-contributing) section
+* **Contributing Guide**: See [Contributing](#contributing) section
 
-For questions, check the [FAQ](#-faq) section.
-
+For questions, check the [FAQ](#faq) section.
 
 ---
-
 
 ## 🤝 Contributing
 
