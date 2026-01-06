@@ -47,17 +47,6 @@
 * ✅ **Cross-Platform**: Works on Linux, macOS, and Windows
 * ✅ **Entropy Calculation**: Know exactly how secure your passwords are
 
-### 🚧 Upcoming Features
-
-* Password expiration reminders
-* Two-factor authentication (2FA) storage
-* Import/Export functionality
-* Password history tracking
-* Multi-user support
-* Backup and restore system
-* HMAC file integrity verification
-* Rate limiting for brute force protection
-
 ---
 
 ## 🛠️ Installation
@@ -406,12 +395,6 @@ This ensures your vault is always accessible regardless of where you run the `ci
 - ✅ **Input Validation**: All user input sanitized before processing
 - ✅ **Process Isolation**: Clipboard operations run in isolated child processes
 
-**Ongoing security work:**
-- 🔲 Implement HMAC for file integrity verification
-- 🔲 Add rate limiting for password attempts
-- 🔲 Migrate to Argon2 (memory-hard key derivation)
-- 🔲 Add constant-time password comparison
-
 ### Limitations
 
 This is a learning project and should not be used for critical production environments without professional security audit. For production use, consider established solutions like:
@@ -562,6 +545,22 @@ make CC=clang debug
 ```
 
 ---
+
+
+## 📚 Documentation
+
+For detailed information about the project:
+
+* **Architecture**: See code structure in [Project Structure](#-project-structure)
+* **Security Details**: See [Security](#-security) section
+* **API Reference**: Coming soon
+* **Contributing Guide**: See [Contributing](#-contributing) section
+
+For questions, check the [FAQ](#-faq) section.
+
+
+---
+
 
 ## 🤝 Contributing
 
