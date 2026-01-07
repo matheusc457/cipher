@@ -125,6 +125,19 @@ int file_save(PasswordManager *pm, const char *master_password) {
         return 0;
     }
     
+    // Handle empty vault (no entries)
+    if (pm->count == 0) {
+        // Write zero length for empty vault
+        size_t ciphertext_len = 0;
+        if (fwrite(&ciphertext_len, sizeof(size_t), 1, file) != 1) {
+            fclose(file);
+            return 0;
+        }
+        fclose(file);
+        memset(key, 0, KEY_SIZE);
+        return 1;
+    }
+    
     // Serialize and encrypt entries
     size_t data_size = sizeof(PasswordEntry) * pm->count;
     unsigned char *plaintext = (unsigned char*)pm->entries;
@@ -191,12 +204,34 @@ PasswordManager* file_load(const char *master_password, int *success) {
         fclose(file);
         return NULL;
     }
+    fclose(file);
+    
+    // Handle empty vault (no entries)
+    if (ciphertext_len == 0 || header.entry_count == 0) {
+        memset(key, 0, KEY_SIZE);
+        
+        // Create empty password manager
+        PasswordManager *pm = pm_init();
+        if (!pm) return NULL;
+        
+        *success = 1;
+        return pm;
+    }
     
     unsigned char *ciphertext = malloc(ciphertext_len);
     if (!ciphertext) {
-        fclose(file);
         return NULL;
     }
+    
+    // Re-open file to read encrypted data
+    file = fopen(get_data_file_path(), "rb");
+    if (!file) {
+        free(ciphertext);
+        return NULL;
+    }
+    
+    // Skip header and ciphertext_len
+    fseek(file, sizeof(FileHeader) + sizeof(size_t), SEEK_SET);
     
     if (fread(ciphertext, 1, ciphertext_len, file) != ciphertext_len) {
         free(ciphertext);
@@ -299,4 +334,17 @@ int file_change_master_password(PasswordManager *pm,
     }
     
     return file_save(pm, new_password);
+}
+
+// Dummy functions for compatibility
+int file_lock_vault(void) {
+    return 1;
+}
+
+void file_unlock_vault(void) {
+    // Do nothing
+}
+
+int file_is_vault_locked(void) {
+    return 0;
 }
