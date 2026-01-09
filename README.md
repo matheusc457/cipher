@@ -28,7 +28,7 @@
 
 ---
 
-## ✨ Features
+## Features
 
 * ✅ **Master Password Protection**: One password to rule them all
 * ✅ **Strong Encryption**: AES-256-CBC encryption for stored passwords
@@ -49,7 +49,7 @@
 
 ---
 
-## 🛠️ Installation
+## Installation
 
 ### Prerequisites
 
@@ -110,7 +110,7 @@ make
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ### First Time Setup
 
@@ -257,7 +257,7 @@ What would you like to do?
 
 ---
 
-## 🎲 Passphrase Generator
+## Passphrase Generator
 
 Generate memorable, secure passphrases using the EFF wordlist.
 
@@ -276,7 +276,7 @@ Passphrases like `correct-horse-battery-staple` are:
 
 ---
 
-## 📋 Clipboard Security
+## Clipboard Security
 
 Cipher includes **cross-platform clipboard integration** with automatic security timeout:
 
@@ -312,7 +312,7 @@ If clipboard tools are not installed, Cipher will still work normally - you just
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ### Repository Structure
 ```
@@ -354,7 +354,7 @@ This ensures your vault is always accessible regardless of where you run the `ci
 
 ---
 
-## 🔒 Security
+## Security
 
 ### Encryption
 
@@ -409,7 +409,7 @@ If you discover a security vulnerability, please report it responsibly by contac
 
 ---
 
-## 📚 Third-Party Resources
+## Third-Party Resources
 
 This project uses the **EFF Large Wordlist** for passphrase generation.
 
@@ -424,7 +424,7 @@ The wordlist was created by Joseph Bonneau and EFF, designed specifically for cr
 
 ---
 
-## ❓ FAQ
+## FAQ
 
 ### Where is my password vault stored?
 
@@ -484,7 +484,7 @@ Yes! Since v1.1.0, Cipher uses a secure pipe/fork/exec pattern that completely e
 
 ---
 
-## 🧪 Building from Source
+## Building from Source
 
 ### Compiler Options
 
@@ -546,7 +546,7 @@ make CC=clang debug
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 For detailed information about the project:
 
@@ -559,7 +559,7 @@ For questions, check the [FAQ](#faq) section.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -588,19 +588,19 @@ git push origin feature/AmazingFeature
 
 ---
 
-## 📝 License
+## License
 
 This project is licensed under the GNU General Public License v3.0 (GPLv3). See the [LICENSE](LICENSE) file for the full license text or visit the [GNU GPLv3 page](https://www.gnu.org/licenses/gpl-3.0.en.html) for details.
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 Created with ❤️ by [Matheus](https://github.com/matheusc457)
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 * Inspired by password managers like KeePass and Bitwarden
 * EFF Large Wordlist for passphrase generation
@@ -613,6 +613,6 @@ Created with ❤️ by [Matheus](https://github.com/matheusc457)
 
 ---
 
-⬆ [Back to top](#-cipher)
+[⬆ Back to top](#-cipher)
 
 Made with 🔐 and C
