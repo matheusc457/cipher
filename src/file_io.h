@@ -41,4 +41,20 @@ int file_change_master_password(PasswordManager *pm,
                                 const char *old_password,
                                 const char *new_password);
 
+// ============================================================================
+// FILE LOCKING - Prevent concurrent vault access
+// ============================================================================
+
+// Lock vault file for exclusive access (prevents concurrent writes)
+// Returns: 1 on success, 0 if already locked by another instance
+int file_lock_vault(void);
+
+// Unlock vault file
+void file_unlock_vault(void);
+
+// Check if another instance has the vault locked
+// Returns: 1 if locked, 0 if available
+// Automatically removes stale locks from dead processes
+int file_is_vault_locked(void);
+
 #endif // FILE_IO_H

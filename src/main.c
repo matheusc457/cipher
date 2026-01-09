@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include "utils.h"
 #include "crypto.h"
 #include "password.h"
@@ -20,6 +21,43 @@
 
 static PasswordManager *pm = NULL;
 static char master_password[MASTER_PASSWORD_SIZE];
+
+// Signal handler for cleanup on Ctrl+C or termination
+static void signal_handler(int signum) {
+    (void)signum; // Unused parameter
+    
+    printf("\n\n");
+    print_info("Received interrupt signal. Cleaning up...");
+    
+    // Cleanup
+    if (pm) {
+        memset(master_password, 0, sizeof(master_password));
+        pm_free(pm);
+    }
+    passphrase_cleanup();
+    crypto_cleanup();
+    file_unlock_vault(); // Clean up any stale locks
+    
+    printf("\nThank you for using Cipher!\n\n");
+    exit(0);
+}
+
+// Setup signal handlers
+static void setup_signal_handlers(void) {
+#ifdef _WIN32
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+#else
+    struct sigaction sa;
+    sa.sa_handler = signal_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    
+    sigaction(SIGINT, &sa, NULL);  // Ctrl+C
+    sigaction(SIGTERM, &sa, NULL); // kill command
+    sigaction(SIGHUP, &sa, NULL);  // Terminal closed
+#endif
+}
 
 void show_menu(void) {
     printf("\n");
@@ -489,6 +527,9 @@ int unlock_vault(void) {
 }
 
 int main(void) {
+    // Setup signal handlers for cleanup
+    setup_signal_handlers();
+    
     // Initialize
     crypto_init();
     file_init();
@@ -550,6 +591,7 @@ int main(void) {
     pm_free(pm);
     passphrase_cleanup();
     crypto_cleanup();
+    file_unlock_vault(); // Clean up any stale locks
     
     printf("\nThank you for using Cipher!\n\n");
     return 0;
