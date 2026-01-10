@@ -1,5 +1,5 @@
 # GitLab CI/CD Pipeline for Cipher Password Manager
-# Multi-platform build and test automation
+# Free shared runners (no self-hosted runner required)
 
 stages:
   - build
@@ -11,7 +11,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 # ============================================================================
-# BUILD STAGE - Compile on different platforms and compilers
+# BUILD STAGE
 # ============================================================================
 
 build:gcc:linux:
@@ -29,8 +29,6 @@ build:gcc:linux:
     paths:
       - bin/cipher
     expire_in: 1 hour
-  tags:
-    - docker
 
 build:clang:linux:
   stage: build
@@ -47,12 +45,9 @@ build:clang:linux:
     paths:
       - bin/cipher
     expire_in: 1 hour
-  tags:
-    - docker
-  allow_failure: false
 
 # ============================================================================
-# TEST STAGE - Basic functionality tests
+# TEST STAGE
 # ============================================================================
 
 test:compilation:
@@ -65,8 +60,6 @@ test:compilation:
     - echo "Testing compilation warnings..."
     - make clean
     - make CFLAGS="-Wall -Wextra -Werror -std=c11"
-  tags:
-    - docker
 
 test:static-analysis:
   stage: test
@@ -77,17 +70,14 @@ test:static-analysis:
   script:
     - echo "Running static analysis with cppcheck..."
     - cppcheck --enable=all --suppress=missingIncludeSystem src/ 2>&1 | tee cppcheck-report.txt
-    - echo "Static analysis completed"
   artifacts:
     paths:
       - cppcheck-report.txt
     expire_in: 1 week
-  tags:
-    - docker
   allow_failure: true
 
 # ============================================================================
-# SECURITY STAGE - Security checks
+# SECURITY STAGE
 # ============================================================================
 
 security:dependencies:
@@ -99,16 +89,13 @@ security:dependencies:
   script:
     - echo "Checking OpenSSL version..."
     - openssl version -a
-    - echo "Security check completed"
-  tags:
-    - docker
   only:
     - main
     - merge_requests
   allow_failure: true
 
 # ============================================================================
-# RELEASE STAGE - Build optimized binaries for releases
+# RELEASE STAGE
 # ============================================================================
 
 release:linux:amd64:
@@ -127,8 +114,6 @@ release:linux:amd64:
     paths:
       - bin/cipher-linux-amd64
     expire_in: 1 year
-  tags:
-    - docker
   only:
     - tags
     - /^v.*$/
@@ -144,14 +129,13 @@ release:create-notes:
     - echo "# Release $CI_COMMIT_TAG" > RELEASE_NOTES.md
     - echo "" >> RELEASE_NOTES.md
     - echo "## Changes" >> RELEASE_NOTES.md
-    - git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD >> RELEASE_NOTES.md || echo "- Initial release" >> RELEASE_NOTES.md
+    - git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD \
+      >> RELEASE_NOTES.md || echo "- Initial release" >> RELEASE_NOTES.md
     - cat RELEASE_NOTES.md
   artifacts:
     paths:
       - RELEASE_NOTES.md
     expire_in: 1 year
-  tags:
-    - docker
   only:
     - tags
     - /^v.*$/
