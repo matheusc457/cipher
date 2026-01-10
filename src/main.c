@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+
+#ifdef _WIN32
+    #include <windows.h>
+    #define sleep(x) Sleep((x) * 1000)
+#else
+    #include <unistd.h>
+    #include <sys/types.h>
+#endif
+
 #include "utils.h"
 #include "crypto.h"
 #include "password.h"
@@ -9,13 +18,6 @@
 #include "passphrase.h"
 #include "clipboard.h"
 #include "file_io.h"
-
-#ifdef _WIN32
-    #include <windows.h>
-    #define sleep(x) Sleep((x) * 1000)
-#else
-    #include <unistd.h>
-#endif
 
 #define MASTER_PASSWORD_SIZE 256
 
@@ -36,7 +38,7 @@ static void signal_handler(int signum) {
     }
     passphrase_cleanup();
     crypto_cleanup();
-    file_unlock_vault(); // Clean up any stale locks
+    file_unlock_vault();
     
     printf("\nThank you for using Cipher!\n\n");
     exit(0);
@@ -591,7 +593,7 @@ int main(void) {
     pm_free(pm);
     passphrase_cleanup();
     crypto_cleanup();
-    file_unlock_vault(); // Clean up any stale locks
+    file_unlock_vault();
     
     printf("\nThank you for using Cipher!\n\n");
     return 0;
